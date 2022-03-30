@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework' #NEW
+    'rest_framework', #NEW
+    'Usuarios', #NEW
+    'Libros', #NEW
 ]
 
 MIDDLEWARE = [
@@ -76,8 +78,12 @@ WSGI_APPLICATION = 'BackEnd.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'd1pmddnmk1puct',
+        'USER': 'plxqyixcbizgid',
+        'PASSWORD': '85c4033d7b989bf33b24614ac1f1e69b8ba2df809eb0f068adf611d2457bf816',
+        'HOST': 'ec2-52-30-67-143.eu-west-1.compute.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
