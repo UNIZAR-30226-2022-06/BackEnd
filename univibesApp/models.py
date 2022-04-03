@@ -33,9 +33,9 @@ class Usuario(models.Model):
     correo = models.CharField(max_length=50,unique=True)
     esAdmin = models.BooleanField()
     #telefono = models.PositiveIntegerField()
-    configuracion = models.OneToOneField(Configuracion,related_name='usuario')
-    docsAnyadidos = models.ManyToManyField(Documento)
-    docsSubidos = models.ManyToManyField(Documento)
+    #configuracion = models.OneToOneField(Configuracion,related_name='usuario',on_delete=models.CASCADE,null=True)
+    docsAnyadidos = models.ManyToManyField(Documento,related_name='+')
+    docsSubidos = models.ManyToManyField(Documento,related_name='+')
     def __str__(self):
         return self.nomUsuario
 

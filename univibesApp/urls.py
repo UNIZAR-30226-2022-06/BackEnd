@@ -1,5 +1,5 @@
 from django.urls import include, path
-from .views import UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioUpdate, UsuarioDelete
+from .views import UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioUpdate, UsuarioAddDocs, UsuarioDelete
 from .views import ConfiguracionCreate, ConfiguracionList, ConfiguracionDetail, ConfiguracionUpdate, ConfiguracionDelete
 from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete
@@ -10,9 +10,10 @@ from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete
 urlpatterns = [
     path('createUsuario/', UsuarioCreate.as_view(), name='create-usuario'),
     path('Usuarios', UsuarioList.as_view()),
-    path('Usuarios/<int:pk>/', UsuarioDetail.as_view(), name='retrieve-usuario'),
-    path('updateUsuario/<int:pk>/', UsuarioUpdate.as_view(), name='update-usuario'),
-    path('deleteUsuario/<int:pk>/', UsuarioDelete.as_view(), name='delete-usuario'),
+    path('Usuarios/<str:nomUsuario>/', UsuarioDetail.as_view(), name='retrieve-usuario'),
+    path('updateUsuario/<str:nomUsuario>/', UsuarioUpdate.as_view(), name='update-usuario'),
+    path('addDocsUsuario/<str:nomUsuario>/', UsuarioAddDocs.as_view(), name='addDocs-usuario'),
+    path('deleteUsuario/<str:nomUsuario>/', UsuarioDelete.as_view(), name='delete-usuario'),
     path('createConfiguracion/', ConfiguracionCreate.as_view(), name='create-Configuracion'),
     path('Configuracions', ConfiguracionList.as_view()),
     path('Configuracions/<int:pk>/', ConfiguracionDetail.as_view(), name='retrieve-Configuracion'),

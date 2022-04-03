@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import Usuario, Documento, Libro, Configuracion, Marca
 from rest_framework import generics
-from .serializers import UsuarioSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, ConfiguracionSerializer
+from .serializers import UsuarioSerializer, UsuarioCreateSerializer, UsuarioAddDocsSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, ConfiguracionSerializer
 
 # Create your views here.
 
@@ -10,7 +10,8 @@ from .serializers import UsuarioSerializer, DocumentoSerializer, LibroSerializer
 class UsuarioCreate(generics.CreateAPIView):
     # API endpoint that allows creation of a new Usuario
     queryset = Usuario.objects.all(),
-    serializer_class = UsuarioSerializer
+    serializer_class = UsuarioCreateSerializer
+    
 
 class UsuarioList(generics.ListAPIView):
     # API endpoint that allows Usuario to be viewed.
@@ -19,19 +20,30 @@ class UsuarioList(generics.ListAPIView):
 
 class UsuarioDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Usuario by pk.
+    lookup_field = 'nomUsuario'
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
 class UsuarioUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
     queryset = Usuario.objects.all()
+    lookup_field = 'nomUsuario'
     serializer_class = UsuarioSerializer
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
+    # API endpoint that allows a Usuario record to be updated.
+    queryset = Usuario.objects.all()
+    lookup_field = 'nomUsuario'
+    serializer_class = UsuarioAddDocsSerializer
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
        
 class UsuarioDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Usuario record to be deleted.
     queryset = Usuario.objects.all()
+    lookup_field = 'nomUsuario'
     serializer_class = UsuarioSerializer
 
 #Documento
@@ -55,6 +67,8 @@ class DocumentoUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Documento record to be updated.
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class DocumentoDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Documento record to be deleted.
@@ -82,6 +96,8 @@ class LibroUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Libro record to be updated.
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class LibroDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Libro record to be deleted.
@@ -109,6 +125,8 @@ class ConfiguracionUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Configuracion record to be updated.
     queryset = Configuracion.objects.all()
     serializer_class = ConfiguracionSerializer
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class ConfiguracionDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Configuracion record to be deleted.
@@ -137,6 +155,8 @@ class MarcaUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Marca record to be updated.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class MarcaDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Marca record to be deleted.
