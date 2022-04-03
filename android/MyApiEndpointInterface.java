@@ -2,7 +2,7 @@ package backend;
 
 import java.util.List;
 
-
+import okhttp3.ResponseBody;
 import backend.clasesDB.Documento;
 import backend.clasesDB.Usuario;
 import okhttp3.RequestBody;
@@ -41,6 +41,9 @@ public interface MyApiEndpointInterface {
 
     @PUT("addDocsUsuario/{nomUsuario}/")
     Call<Usuario> addDocsUser(@Path("nomUsuario") String nomUsuarioDestino, @Body RequestBody body);
+
+    @DELETE("deleteUsuario/{nomUsuario}/")
+    Call<ResponseBody> deleteUser(@Path("nomUsuario") String nomUsuario);
 
     @GET("Usuarios")
     Call<List<Usuario>> userList(@Query("nomUsuario") String nomUsuario);
