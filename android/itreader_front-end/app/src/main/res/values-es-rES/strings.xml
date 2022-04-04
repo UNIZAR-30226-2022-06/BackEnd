@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UniVibes</string>
+    <string name="password">Contraseña</string>
+    <string name="signIn">Iniciar Sesión</string>
+    <string name="username">Usuario</string>
+    <string name="recuperar">Recuperar Contraseña</string>
+    <string name="SignUpFor">Regístrate en UniVibes</string>
+    <string name="name">Nombre</string>
+    <string name="mail">Correo electronico</string>
+    <string name="signUp">Registrarse</string>
+    <string name="loginEmpty">Usuario o contraseña incorrectos</string>
+    <string name="Resetear">Email incorrecto</string>
+    <string name="MensajeEnviado">Se ha enviado un email de recuperación a</string>
+    <string name="ErrorRegistro">Datos incorrectos</string>
+    <string name="RegistroCreado">ha sido creado</string>
+    <string name="home">Inicio</string>
+    <string name="search">Busqueda</string>
+    <string name="addEvent">Añadir evento</string>
+    <string name="fiends">Amigos</string>
+    <string name="profile">Perfil</string>
+</resources>

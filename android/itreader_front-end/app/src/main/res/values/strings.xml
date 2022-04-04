@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">UniVibes</string>
+    <string name="password">Password</string>
+    <string name="signIn">Sign In</string>
+    <string name="username">Username</string>
+    <string name="recuperar">Reset password</string>
+    <string name="SignUpFor">Sign up for UniVibes</string>
+    <string name="name">Name</string>
+    <string name="mail">Mail</string>
+    <string name="signUp">Sign Up</string>
+    <string name="loginEmpty">Invalid username or password</string>
+    <string name="Resetear">Invalid email</string>
+    <string name="MensajeEnviado">A recuperation email has been sent to</string>
+    <string name="ErrorRegistro">Invalid data</string>
+    <string name="RegistroCreado">has been created</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="addEvent">Add event</string>
+    <string name="fiends">Friends</string>
+    <string name="profile">Profile</string>
+</resources>
