@@ -2,12 +2,15 @@ package backend;
 
 import java.util.List;
 
-import okhttp3.ResponseBody;
+
 import backend.clasesDB.Documento;
+import backend.clasesDB.Libro;
 import backend.clasesDB.Usuario;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -45,8 +48,8 @@ public interface MyApiEndpointInterface {
     @DELETE("deleteUsuario/{nomUsuario}/")
     Call<ResponseBody> deleteUser(@Path("nomUsuario") String nomUsuario);
 
-    @GET("Usuarios")
-    Call<List<Usuario>> userList(@Query("nomUsuario") String nomUsuario);
+    @GET("Usuarios/")
+    Call<List<Usuario>> userList();
 
     @GET("Documentos/{nomUsuario}")
     Call<Documento> getDocumento(@Path("idDoc") String idDoc);
@@ -54,10 +57,16 @@ public interface MyApiEndpointInterface {
     @POST("createDocumento/")
     Call<Documento> createDocumento(@Body Documento doc);
 
+    @POST("createLibro/")
+    Call<Libro> createLibro(@Body Libro libro);
+
     @PUT("updateDocumento/{idDocDestino}/")
     Call<Documento> updateDocumento(@Path("idDoc") Integer idDocDestino, @Body RequestBody body);
 
-    @GET("Documentos")
-    Call<List<Documento>> documentoList(@Query("idDoc") String idDoc);
+    @GET("Documentos/")
+    Call<List<Documento>> documentoList(/*@Query("page") Integer page*/);
+
+    @GET("Libros/")
+    Call<List<Libro>> libroList();
 
 }
