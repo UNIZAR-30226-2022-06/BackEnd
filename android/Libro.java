@@ -27,12 +27,12 @@ public class Libro {
     @Expose
     private String autor;
 
-    public Libro(String nombre, String linkDocumento, String linkPortada, String autor) {
+    public Libro(String nombre, String formato, String linkDocumento, String linkPortada, String ISBN, String autor) {
         this.nombre = nombre;
-        this.formato = "epub";
+        this.formato = formato;
         this.linkDocumento = linkDocumento;
         this.linkPortada = linkPortada;
-        this.ISBN = "1234567890";
+        this.ISBN = ISBN;
         this.autor = autor;
     }
 
