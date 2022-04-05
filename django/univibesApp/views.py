@@ -23,6 +23,12 @@ class UsuarioDetail(generics.RetrieveAPIView):
     lookup_field = 'nomUsuario'
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+    
+class UsuarioDetailCorreo(generics.RetrieveAPIView):
+   # API endpoint that returns a single Usuario by pk.
+   lookup_field = 'correo'
+   queryset = Usuario.objects.all()
+   serializer_class = UsuarioSerializer
 
 class UsuarioUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
