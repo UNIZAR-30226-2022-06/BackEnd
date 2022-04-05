@@ -1,4 +1,5 @@
 from pyexpat import model
+from django.conf import Settings, SettingsReference, settings
 from django.shortcuts import render
 from .models import Usuario, Documento, Libro, Configuracion, Marca
 from rest_framework import generics
@@ -9,6 +10,15 @@ from rest_framework.pagination import PageNumberPagination
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from urllib import response
+from django.conf import settings
+from os import environ
+import smtplib
+import email.utils
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+
+
 
 # Create your views here.
 
@@ -53,16 +63,27 @@ class UsuarioDetailCorreo(generics.RetrieveAPIView):
 
 
 class EnviarCorreoView(generics.RetrieveAPIView):
-    # API endpoint that returns a single Usuario by pk.
+    # API endpoint that returns a single Usuario by pk..
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
     def get(self, request, *args, **kwargs):
 
-        contraseña = Usuario.objects.get(correo=self.kwargs['correo'])
-        email = self.kwargs['correo']
+        #contrasena = Usuario.objects.get(correo=self.kwargs['correo'])
+        #email = request['correo']
 
-        send_mail("Recuperar contraseña","Su contraseña es "+contraseña,"itreadersoftkare@gmail.com",email)
+        # email = self.request.query_params.['correo']
+        # print('email'+email)
+
+        # send_mail('Recuperar contraseña','Su contraseña es ','itreadersoftkare@gmail.com',['hectorrute98gp@gmail.com'])
+
+        # return self.retrieve(request, *args, **kwargs)
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login('itreadersoftkare@gmail.com', 'Proyecto2022')
+        server.sendmail('itreadersoftkare@gmail.com', 'hectorrute98gp@gmail.com', 'Mensaje')
+        server.quit()
 
         return self.retrieve(request, *args, **kwargs)
 
