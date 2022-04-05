@@ -144,3 +144,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
+
+# CORREO 
+EMAIL_BACKEND="django.core.mail.backends.smtp.emailBackend"
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_USE_TLS=True
+EMAIL_PORT=587
+EMAIL_HOST_USER="itreadersoftkare@gmail.com"
+EMAIL_HOST_PASSWORD="Proyecto2022"

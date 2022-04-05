@@ -1,7 +1,10 @@
+from urllib import response
 from django.shortcuts import render
 from .models import Usuario, Documento, Libro, Configuracion, Marca
 from rest_framework import generics
 from .serializers import UsuarioSerializer, UsuarioCreateSerializer, UsuarioAddDocsSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, ConfiguracionSerializer
+from django.core.mail import send_mail
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -12,7 +15,6 @@ class UsuarioCreate(generics.CreateAPIView):
     queryset = Usuario.objects.all(),
     serializer_class = UsuarioCreateSerializer
     
-
 class UsuarioList(generics.ListAPIView):
     # API endpoint that allows Usuario to be viewed.
     queryset = Usuario.objects.all()
@@ -24,11 +26,16 @@ class UsuarioDetail(generics.RetrieveAPIView):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
     
-class UsuarioDetailCorreo(generics.RetrieveAPIView):
-   # API endpoint that returns a single Usuario by pk.
-   lookup_field = 'correo'
-   queryset = Usuario.objects.all()
+def UsuarioDetailCorreo(request, pk_correo):
+   # Envia el correo de recuperacion de contraseña, si existe el usuario
+   usuario = Usuario.objects.get(correo=pk_correo)
    serializer_class = UsuarioSerializer
+
+   Usuario.objects.filter(correo=)
+
+   def put(self, request, *args, **kwargs):
+
+    
 
 class UsuarioUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
