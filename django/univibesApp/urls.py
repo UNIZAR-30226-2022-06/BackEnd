@@ -11,7 +11,7 @@ urlpatterns = [
     path('createUsuario/', UsuarioCreate.as_view(), name='create-usuario'),
     path('Usuarios', UsuarioList.as_view()),
     path('Usuarios/<str:nomUsuario>/', UsuarioDetail.as_view(), name='retrieve-usuario'),
-    path('Usuarios/<str:correo>/', UsuarioDetail.as_view(), name='correo-usuario'),
+    path('Usuarios/<str:correo>/', UsuarioDetailCorreo.as_view(), name='correo-usuario'),
     path('updateUsuario/<str:nomUsuario>/', UsuarioUpdate.as_view(), name='update-usuario'),
     path('addDocsUsuario/<str:nomUsuario>/', UsuarioAddDocs.as_view(), name='addDocs-usuario'),
     path('deleteUsuario/<str:nomUsuario>/', UsuarioDelete.as_view(), name='delete-usuario'),
