@@ -27,9 +27,9 @@ public class Libro {
     @Expose
     private String autor;
 
-    public Libro(String nombre, String formato, String linkDocumento, String linkPortada, String ISBN, String autor) {
+    public Libro(String nombre, String linkDocumento, String linkPortada, String ISBN, String autor) {
         this.nombre = nombre;
-        this.formato = formato;
+        this.formato = "epub";
         this.linkDocumento = linkDocumento;
         this.linkPortada = linkPortada;
         this.ISBN = ISBN;
