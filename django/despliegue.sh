@@ -1,8 +1,8 @@
 #!/bin/bash
 ######################################################################
-# @author      : grupo 6
+# @author      : grupo 5
 # @file        : despliegue.sh
-# @created     : lunes abril 4, 2021 19:19:01 CET
+# @created     : domingo feb 28, 2021 19:19:01 CET
 #
 # @description : Despliegue de repositorio git en heroku
 ######################################################################
