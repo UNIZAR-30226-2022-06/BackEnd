@@ -1,13 +1,30 @@
-from urllib import response
+from pyexpat import model
+from django.conf import Settings, SettingsReference, settings
 from django.shortcuts import render
 from .models import Usuario, Documento, Libro, Configuracion, Marca
 from rest_framework import generics
 from .serializers import UsuarioSerializer, UsuarioCreateSerializer, UsuarioAddDocsSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, ConfiguracionSerializer
+import django_filters
+from django_filters import rest_framework as filters
+from rest_framework.pagination import PageNumberPagination
 from django.core.mail import send_mail
 from django.http import HttpResponse
+from urllib import response
+from django.conf import settings
+from os import environ
+import smtplib
+import email.utils
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 # Create your views here.
 
+class SmallResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 20
+    
 #USUARIO
 
 class UsuarioCreate(generics.CreateAPIView):
@@ -25,17 +42,80 @@ class UsuarioDetail(generics.RetrieveAPIView):
     lookup_field = 'nomUsuario'
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    
-def UsuarioDetailCorreo(request, pk_correo):
-   # Envia el correo de recuperacion de contraseña, si existe el usuario
-   usuario = Usuario.objects.get(correo=pk_correo)
-   serializer_class = UsuarioSerializer
 
-   Usuario.objects.filter(correo=)
+class UsuarioDetailCorreo(generics.RetrieveAPIView):
+    # API endpoint that returns a single Usuario by pk.
+    lookup_field = 'correo'
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
 
-   def put(self, request, *args, **kwargs):
+    # def UsuarioDetailCorreo(self, request, pk_correo, **kwargs):
+    #     # Envia el correo de recuperacion de contraseña, si existe el usuario
+    #     usuario = Usuario.objects.get(correo=pk_correo)
+    #     serializer_class = UsuarioSerializer
 
-    
+    #     contraseña = Usuario.objects.get(correo=self.kwargs['correo'])
+    #     email = self.kwargs['correo']
+
+    #     send_mail("Recuperar contraseña","Su contraseña es "+contraseña,"itreadersoftkare@gmail.com",email)
+
+
+class EnviarCorreoView(generics.RetrieveAPIView):
+    # API endpoint that returns a single Usuario by pk..
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    lookup_field = 'correo'
+
+    def get(self, request, *args, **kwargs):
+
+        contrasena = Usuario.objects.get(correo=self.kwargs['correo'])
+        email = self.kwargs['correo']
+
+
+
+        #email = self.request.query_params.['correo']
+        print('email '+email)
+
+        contrasenya = str(contrasena)
+        html = '<h1>Su contraseña es '+contrasenya+'</h1>'
+        #text = 'niñería'
+
+        mail = MIMEMultipart('alternative')
+        mail['From'] = 'itreadersoftkare@gmail.com'
+        mail['To'] = email
+        mail['Cc'] = ''
+        mail['Subject'] = 'Su contraseña es '+str(contrasena)
+
+        # Record the MIME types of both parts - text/plain and text/html.
+        #part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+
+        # Attach parts into message container. According to RFC 2046, the last
+        # part of a multipart message, in this case the HTML message, is best
+        # and preferred.
+        mail.attach(part1)
+        mail.attach(part2)
+
+        msg_full = mail.as_string().encode()
+
+        #send_mail('Recuperar contraseña','Su contraseña es ','itreadersoftkare@gmail.com',['hectorrute98gp@gmail.com'])
+
+        #return self.retrieve(request, *args, **kwargs)
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login('itreadersoftkare@gmail.com', 'Proyecto2022')
+
+
+        
+        server.sendmail('itreadersoftkare@gmail.com', email, msg_full)
+
+
+        server.quit()
+
+        return self.retrieve(request, *args, **kwargs)
+
+
 
 class UsuarioUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
@@ -66,11 +146,6 @@ class DocumentoCreate(generics.CreateAPIView):
     queryset = Documento.objects.all(),
     serializer_class = DocumentoSerializer
  
-class DocumentoList(generics.ListAPIView):
-    # API endpoint that allows Documento to be viewed.
-    queryset = Documento.objects.all()
-    serializer_class = DocumentoSerializer
-
 class DocumentoDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Documento by pk.
     queryset = Documento.objects.all()
@@ -87,6 +162,29 @@ class DocumentoDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Documento record to be deleted.
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
+
+
+# class DocumentoFilter(django_filters.FilterSet):
+#     #id = django_filters.NumberFilter()
+#     id__gte = django_filters.NumberFilter(field_name='id', lookup_expr='gte')
+#     id__lte = django_filters.NumberFilter(field_name='id', lookup_expr='lte')
+#     #manufacturer__name = django_filters.CharFilter(lookup_expr='icontains')
+
+#     class Meta:
+#         model = Documento
+#         fields = ['id']
+
+class DocumentoList(generics.ListAPIView):
+    # API endpoint that allows Documento to be viewed.
+    model = Documento
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+    ## filter_backends = (filters.DjangoFilterBackend,)
+    # filter_class = DocumentoFilter
+    # pagination_class = SmallResultsSetPagination
+
+
+
 
 #Libro
 
