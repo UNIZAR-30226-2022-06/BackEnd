@@ -154,5 +154,5 @@ EMAIL_HOST_USER="itreadersoftkare@gmail.com"
 EMAIL_HOST_PASSWORD="Proyecto2022"
 
 CORS_ORIGIN_WHITELIST = [
-    'https://localhost:3000',
+    "https://localhost:3000", "https://fathomless-depths-99647.herokuapp.com", "http://fathomless-depths-99647.herokuapp.com"
 ]
