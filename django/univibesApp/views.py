@@ -4,8 +4,6 @@ from django.shortcuts import render
 from .models import Usuario, Documento, Libro, Configuracion, Marca
 from rest_framework import generics
 from .serializers import UsuarioSerializer, UsuarioCreateSerializer, UsuarioAddDocsSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, ConfiguracionSerializer
-import django_filters
-from django_filters import rest_framework as filters
 from rest_framework.pagination import PageNumberPagination
 from django.core.mail import send_mail
 from django.http import HttpResponse
@@ -16,6 +14,8 @@ import smtplib
 import email.utils
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+
 
 
 # Create your views here.
@@ -64,53 +64,23 @@ class EnviarCorreoView(generics.RetrieveAPIView):
     # API endpoint that returns a single Usuario by pk..
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    lookup_field = 'correo'
 
     def get(self, request, *args, **kwargs):
 
-        contrasena = Usuario.objects.get(correo=self.kwargs['correo'])
-        email = self.kwargs['correo']
+        #contrasena = Usuario.objects.get(correo=self.kwargs['correo'])
+        #email = request['correo']
 
+        # email = self.request.query_params.['correo']
+        # print('email'+email)
 
+        # send_mail('Recuperar contraseña','Su contraseña es ','itreadersoftkare@gmail.com',['hectorrute98gp@gmail.com'])
 
-        #email = self.request.query_params.['correo']
-        print('email '+email)
-
-        contrasenya = str(contrasena)
-        html = '<h1>Su contraseña es '+contrasenya+'</h1>'
-        #text = 'niñería'
-
-        mail = MIMEMultipart('alternative')
-        mail['From'] = 'itreadersoftkare@gmail.com'
-        mail['To'] = email
-        mail['Cc'] = ''
-        mail['Subject'] = 'Su contraseña es '+str(contrasena)
-
-        # Record the MIME types of both parts - text/plain and text/html.
-        #part1 = MIMEText(text, 'plain')
-        part2 = MIMEText(html, 'html')
-
-        # Attach parts into message container. According to RFC 2046, the last
-        # part of a multipart message, in this case the HTML message, is best
-        # and preferred.
-        mail.attach(part1)
-        mail.attach(part2)
-
-        msg_full = mail.as_string().encode()
-
-        #send_mail('Recuperar contraseña','Su contraseña es ','itreadersoftkare@gmail.com',['hectorrute98gp@gmail.com'])
-
-        #return self.retrieve(request, *args, **kwargs)
+        # return self.retrieve(request, *args, **kwargs)
 
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login('itreadersoftkare@gmail.com', 'Proyecto2022')
-
-
-        
-        server.sendmail('itreadersoftkare@gmail.com', email, msg_full)
-
-
+        server.sendmail('itreadersoftkare@gmail.com', 'hectorrute98gp@gmail.com', 'Mensaje')
         server.quit()
 
         return self.retrieve(request, *args, **kwargs)
