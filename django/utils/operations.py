@@ -1,3 +1,7 @@
+import os, PyPDF2
+from fpdf import FPDF
+from epub2txt import epub2txt
+from posixpath import split
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.files import FileNotUploadedError
@@ -98,8 +102,48 @@ def crear_carpeta(nombre_carpeta):
                                                     "id": main_id_folder}]})
     folder.Upload()
 
+# Convierte  un archivo .txt a .pdf, con el mismo nombre que se encuentra en 'local_file_location'
+def convert_txt_pdf(archivo):
+    if os.path.isfile(local_file_location+archivo):
+        pdf = FPDF()   
+        pdf.add_page()
+        pdf.set_font("Arial", size = 15)
+        f = open(local_file_location+archivo, "r")
+        # insert the texts in pdf
+        for x in f:
+            pdf.cell(200, 10, txt = x, ln = 1, align = 'C')
+        # save the pdf with name .pdf
+        split_archivo = archivo.split(".", 1)
+        pdf.output(local_file_location+split_archivo[0]+".pdf")
+
+# Convierte  un archivo .epub a .txt, con el mismo nombre que se encuentra en 'local_file_location'
+def convert_epub_txt(archivo):
+    if os.path.isfile(local_file_location+archivo):
+        split_archivo = archivo.split(".", 1)
+        txt_file=local_file_location+split_archivo[0]+".txt"
+        local_file=open(txt_file,'w')
+        local_file.write(epub2txt(local_file_location+archivo))
+
+# Devuelve el contenido de la pagina 'numero_pagina' de 'archivo'
+def traducir_archivo(archivo, numero_pagina):
+    split_archivo = archivo.split(".", 1)
+    if not os.path.isfile(local_file_location+archivo):
+        descargar_archivo_por_nombre(archivo, local_file_location)
+    if (split_archivo[1]=='pdf'):
+        local_archivo = open(local_file_location+archivo, 'rb')
+        pdfReader = PyPDF2.PdfFileReader(local_archivo) # print(pdfReader.numPages)
+        pageObj = pdfReader.getPage(numero_pagina) #print(pageObj.extractText())
+        return pageObj.extractText() 
+    elif (split_archivo[1]=='epub'):
+        print("EPUB")
+        #TODO
+    else:
+       print("EXTENSION DIFERENTE")
+
 if __name__ == "__main__":
-    subir_archivo("prueba.pdf",file_id_folder, local_file_location)
+    #traducir_archivo("libro.epub", 6)
+    convert_epub_txt("libro.epub")
+    #subir_archivo("prueba.pdf",file_id_folder, local_file_location)
     #descargar_libro_por_nombre('1.png')
     #crear_archivo_texto('Hola_mundo', 'Holi')
     #subir_libro('prueba.pdf')
