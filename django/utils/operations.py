@@ -6,6 +6,9 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.files import FileNotUploadedError
 
+import convertapi
+convertapi.api_secret = 'K7dXPhcugEDqJr28'
+
 directorio_credenciales = 'credentials_module.json'
 # ID UNICOS DE LAS CARPETAS DEL DRIVE
 main_id_folder = '0AHc558HLxAXpUk9PVA'
@@ -102,21 +105,22 @@ def crear_carpeta(nombre_carpeta):
                                                     "id": main_id_folder}]})
     folder.Upload()
 
-# Convierte  un archivo .txt a .pdf, con el mismo nombre que se encuentra en 'local_file_location'
+# Convierte  un archivo .txt a .pdf, con el mismo nombre, que se encuentra en 'local_file_location'
 def convert_txt_pdf(archivo):
     if os.path.isfile(local_file_location+archivo):
         pdf = FPDF()   
         pdf.add_page()
-        pdf.set_font("Arial", size = 15)
+        pdf.set_font("Arial", size = 10)
         f = open(local_file_location+archivo, "r")
         # insert the texts in pdf
         for x in f:
             pdf.cell(200, 10, txt = x, ln = 1, align = 'C')
         # save the pdf with name .pdf
         split_archivo = archivo.split(".", 1)
-        pdf.output(local_file_location+split_archivo[0]+".pdf")
+        pdf_file = split_archivo[0]+".pdf"
+        pdf.output(local_file_location+pdf_file)
 
-# Convierte  un archivo .epub a .txt, con el mismo nombre que se encuentra en 'local_file_location'
+# Convierte  un archivo .epub a .txt, con el mismo nombre, que se encuentra en 'local_file_location'
 def convert_epub_txt(archivo):
     if os.path.isfile(local_file_location+archivo):
         split_archivo = archivo.split(".", 1)
@@ -133,16 +137,38 @@ def traducir_archivo(archivo, numero_pagina):
         local_archivo = open(local_file_location+archivo, 'rb')
         pdfReader = PyPDF2.PdfFileReader(local_archivo) # print(pdfReader.numPages)
         pageObj = pdfReader.getPage(numero_pagina) #print(pageObj.extractText())
+        print(pageObj.extractText()) #-------
         return pageObj.extractText() 
     elif (split_archivo[1]=='epub'):
-        print("EPUB")
-        #TODO
+        #convertapi.convert('pdf', {
+        #    'File': 'C:/Users/David/Desktop/ProySoft/BackEnd/django/utils/libros_local/libro.epub'
+        #}, from_format = 'epub').save_files('C:/Users/David/Desktop/ProySoft/BackEnd/django/utils/libros_local')
+        #convert_epub_txt(archivo)
+        #convert_txt_pdf(split_archivo[0]+".txt")
+        pdf_file =  open(local_file_location+split_archivo[0]+".pdf", 'rb')
+        read_pdf = PyPDF2.PdfFileReader(pdf_file)
+        number_of_pages = read_pdf.getNumPages()
+        print (number_of_pages)
+        page = read_pdf.getPage(numero_pagina)
+        page_number = read_pdf.getPageNumber(page)
+        page_content = page.extractText()
+        print (page_content)
+        print (page_number)
+        print(local_file_location+split_archivo[0]+".pdf")
+        local_archivo = open(local_file_location+split_archivo[0]+".pdf", 'rb')
+        print(local_file_location+split_archivo[0]+".pdf")
+        pdfReader = PyPDF2.PdfFileReader(local_file_location+split_archivo[0]+".pdf") # print(pdfReader.numPages)
+        print(local_file_location+split_archivo[0]+".pdf")
+        pageObj = pdfReader.getPage(numero_pagina) #print(pageObj.extractText())
+        print(pageObj.extractText()) #-------
+        #return pageObj.extractText()       
     else:
        print("EXTENSION DIFERENTE")
 
 if __name__ == "__main__":
+    traducir_archivo("libro.epub", 7)
     #traducir_archivo("libro.epub", 6)
-    convert_epub_txt("libro.epub")
+    #convert_epub_txt("libro.epub")
     #subir_archivo("prueba.pdf",file_id_folder, local_file_location)
     #descargar_libro_por_nombre('1.png')
     #crear_archivo_texto('Hola_mundo', 'Holi')
