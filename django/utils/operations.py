@@ -1,13 +1,10 @@
-import os, PyPDF2
+import os, PyPDF2, convertapi, re
 from fpdf import FPDF
 from epub2txt import epub2txt
 from posixpath import split
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from pydrive2.files import FileNotUploadedError
-
-import convertapi
-convertapi.api_secret = 'K7dXPhcugEDqJr28'
 
 directorio_credenciales = 'credentials_module.json'
 # ID UNICOS DE LAS CARPETAS DEL DRIVE
@@ -17,6 +14,8 @@ imagen_id_folder = "1ozwxIKKXnb0TRRg2jgPm3EfAZGpmXcn_"
 # RUTAS DE LAS CARPETAS DONDE SE DESCARGAN LOS ARCHIVOS
 local_file_location = './libros_local/'
 local_imagen_location = './imagen_local/'
+# LINEAS POR PÁGINA
+lineas_pagina = 20
 
 # INICIAR SESION
 def login():
@@ -105,6 +104,11 @@ def crear_carpeta(nombre_carpeta):
                                                     "id": main_id_folder}]})
     folder.Upload()
 
+# Borra el 'archivo', que se encuentra en 'local_location'
+def delete_archivo(archivo, local_location):
+    if os.path.isfile(local_file_location+archivo):
+        os.remove(local_file_location+archivo)
+
 # Convierte  un archivo .txt a .pdf, con el mismo nombre, que se encuentra en 'local_file_location'
 def convert_txt_pdf(archivo):
     if os.path.isfile(local_file_location+archivo):
@@ -127,48 +131,54 @@ def convert_epub_txt(archivo):
         txt_file=local_file_location+split_archivo[0]+".txt"
         local_file=open(txt_file,'w')
         local_file.write(epub2txt(local_file_location+archivo))
+        local_file.close()
 
-# Devuelve el contenido de la pagina 'numero_pagina' de 'archivo'
+# Convierte  un archivo .epub a .pdf, con el mismo nombre, que se encuentra en 'local_file_location'
+def convert_epub_pdf(archivo):
+    if os.path.isfile(local_file_location+archivo):
+        convertapi.api_secret = 'K7dXPhcugEDqJr28'
+        convertapi.convert('pdf', {
+                'File': './libros_local/'+archivo
+        }, from_format = 'epub').save_files('./libros_local')
+
+#
+# Devuelve el contenido de la pagina 'numero_pagina' de 'archivo', no hace falta que este en local
+#
 def traducir_archivo(archivo, numero_pagina):
     split_archivo = archivo.split(".", 1)
-    if not os.path.isfile(local_file_location+archivo):
+    if not os.path.isfile(local_file_location+archivo) and not os.path.isfile(local_file_location+split_archivo[0]+".txt"):
         descargar_archivo_por_nombre(archivo, local_file_location)
     if (split_archivo[1]=='pdf'):
         local_archivo = open(local_file_location+archivo, 'rb')
         pdfReader = PyPDF2.PdfFileReader(local_archivo) # print(pdfReader.numPages)
         pageObj = pdfReader.getPage(numero_pagina) #print(pageObj.extractText())
-        print(pageObj.extractText()) #-------
         return pageObj.extractText() 
     elif (split_archivo[1]=='epub'):
-        #convertapi.convert('pdf', {
-        #    'File': 'C:/Users/David/Desktop/ProySoft/BackEnd/django/utils/libros_local/libro.epub'
-        #}, from_format = 'epub').save_files('C:/Users/David/Desktop/ProySoft/BackEnd/django/utils/libros_local')
-        #convert_epub_txt(archivo)
-        #convert_txt_pdf(split_archivo[0]+".txt")
-        pdf_file =  open(local_file_location+split_archivo[0]+".pdf", 'rb')
-        read_pdf = PyPDF2.PdfFileReader(pdf_file)
-        number_of_pages = read_pdf.getNumPages()
-        print (number_of_pages)
-        page = read_pdf.getPage(numero_pagina)
-        page_number = read_pdf.getPageNumber(page)
-        page_content = page.extractText()
-        print (page_content)
-        print (page_number)
-        print(local_file_location+split_archivo[0]+".pdf")
-        local_archivo = open(local_file_location+split_archivo[0]+".pdf", 'rb')
-        print(local_file_location+split_archivo[0]+".pdf")
-        pdfReader = PyPDF2.PdfFileReader(local_file_location+split_archivo[0]+".pdf") # print(pdfReader.numPages)
-        print(local_file_location+split_archivo[0]+".pdf")
-        pageObj = pdfReader.getPage(numero_pagina) #print(pageObj.extractText())
-        print(pageObj.extractText()) #-------
-        #return pageObj.extractText()       
+        if not os.path.isfile(local_file_location+split_archivo[0]+".txt"):
+            convert_epub_txt(archivo)
+            os.remove(local_file_location+archivo)
+            f=open(local_file_location+split_archivo[0]+".txt",'r')
+            # Eliminar lineas inecesarias
+            f1=open(local_file_location+split_archivo[0]+"_bueno.txt",'w')
+            for linea in f:
+                if(not re.findall("[0-9]\n",linea)):
+                    f1.write(linea)
+            f.close(); f1.close()
+            os.remove(local_file_location+split_archivo[0]+".txt")
+            os.rename(local_file_location+split_archivo[0]+"_bueno.txt",local_file_location+split_archivo[0]+".txt")
+        f=open(local_file_location+split_archivo[0]+".txt",'r')
+        data = f.readlines()[numero_pagina*lineas_pagina:numero_pagina*lineas_pagina+lineas_pagina]
+        text=""
+        for i in data:
+            text = text + i
+        return text
     else:
        print("EXTENSION DIFERENTE")
 
 if __name__ == "__main__":
     traducir_archivo("libro.epub", 7)
-    #traducir_archivo("libro.epub", 6)
-    #convert_epub_txt("libro.epub")
+    #delete_archivo("libro.txt", local_file_location)
+    #convert_epub_pdf("libro.epub")
     #subir_archivo("prueba.pdf",file_id_folder, local_file_location)
     #descargar_libro_por_nombre('1.png')
     #crear_archivo_texto('Hola_mundo', 'Holi')
