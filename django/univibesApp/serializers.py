@@ -95,9 +95,11 @@ class UsuarioAddDocsSerializer(serializers.ModelSerializer):
         return instance
 
 class MarcaSerializer(serializers.ModelSerializer):
-    usuario = UsuarioSerializer(read_only=True)
-    documento = DocumentoSerializer(read_only=True)
+    usuario = UsuarioMarcaSerializer()
+    libro = LibroSerializer()
+    depth = 1
     class Meta:
         model = Marca
         fields = '__all__'
+
 

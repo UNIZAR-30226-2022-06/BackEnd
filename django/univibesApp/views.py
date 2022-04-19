@@ -2,7 +2,7 @@ from pyexpat import model
 from django.conf import Settings, SettingsReference, settings
 from django.shortcuts import render
 from .models import Usuario, Documento, Libro, Configuracion, Marca
-from rest_framework import generics
+from rest_framework import generics, status
 from .serializers import UsuarioSerializer, UsuarioCreateSerializer, UsuarioAddDocsSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, ConfiguracionSerializer
 from rest_framework.pagination import PageNumberPagination
 from django.core.mail import send_mail
@@ -14,6 +14,7 @@ import smtplib
 import email.utils
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from rest_framework.response import Response
 
 
 
@@ -67,20 +68,43 @@ class EnviarCorreoView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
 
-        #contrasena = Usuario.objects.get(correo=self.kwargs['correo'])
-        #email = request['correo']
+        contrasena = Usuario.objects.get(correo=self.kwargs['correo']).password
+        email = self.kwargs['correo']
 
-        # email = self.request.query_params.['correo']
-        # print('email'+email)
+        #email = self.request.query_params.['correo']
+        print('email '+email)
 
-        # send_mail('Recuperar contraseña','Su contraseña es ','itreadersoftkare@gmail.com',['hectorrute98gp@gmail.com'])
+        contrasenya = str(contrasena)
+        html = '<h1>Su contraseña es '+contrasenya+'</h1>'
+        #text = 'niñería'
 
-        # return self.retrieve(request, *args, **kwargs)
+        mail = MIMEMultipart('alternative')
+        mail['From'] = 'itreadersoftkare@gmail.com'
+        mail['To'] = email
+        mail['Cc'] = ''
+        mail['Subject'] = 'Su contraseña es '+contrasenya
+
+        # Record the MIME types of both parts - text/plain and text/html.
+        #part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+
+        # Attach parts into message container. According to RFC 2046, the last
+        # part of a multipart message, in this case the HTML message, is best
+        # and preferred.
+        #mail.attach(part1)
+        mail.attach(part2)
+
+        msg_full = mail.as_string().encode()
 
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login('itreadersoftkare@gmail.com', 'Proyecto2022')
-        server.sendmail('itreadersoftkare@gmail.com', 'hectorrute98gp@gmail.com', 'Mensaje')
+
+
+        
+        server.sendmail('itreadersoftkare@gmail.com', email, msg_full)
+
+
         server.quit()
 
         return self.retrieve(request, *args, **kwargs)
@@ -221,6 +245,18 @@ class MarcaCreate(generics.CreateAPIView):
     # API endpoint that allows creation of a new Marca
     queryset = Marca.objects.all(),
     serializer_class = MarcaSerializer
+
+    def post(self, request, *args, **kwargs):
+    us = Usuario.objects.get(nomUsuario=request.GET['usuario'])
+    lib = Libro.objects.get(id=request.GET['libro'])
+    Marca.objects.create(nombre=request.body[0],pagina=request.body[1],offset=request.body[2],esUltimaLeida=True,usuario=us,libro=lib)
+    response = {}
+    response['success'] = True
+    response['message'] = "Registro guardado exitosamente"
+    response['status'] = status.HTTP_201_CREATED
+    return Response(response)
+
+
  
 class MarcaList(generics.ListAPIView):
     # API endpoint that allows Marca to be viewed.
