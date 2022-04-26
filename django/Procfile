@@ -1,2 +1,2 @@
-release: python manage.py makemigrations && python manage.py migrate
-web: gunicorn univibesPr.wsgi --log-file -
+release: > itreaderApp/migrations/__init__.py && python manage.py makemigrations && python manage.py migrate
+web: gunicorn itreaderPr.wsgi --log-file -
