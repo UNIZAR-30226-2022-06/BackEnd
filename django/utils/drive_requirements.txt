@@ -1,0 +1,8 @@
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+pip install PyDrive2
+pip install PyPDF2
+pip install fpdf
+pip install epub2txt
+pip install setuptools-rust
+
+pip install --upgrade convertapi
