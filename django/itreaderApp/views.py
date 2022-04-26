@@ -34,7 +34,7 @@ class UsuarioLogin(generics.RetrieveAPIView):
             return self.retrieve(request, *args, **kwargs)
         else:
             response = {}
-            response['success'] = True
+            response['success'] = False
             response['message'] = "Login no valido"
             response['status'] = status.HTTP_400_BAD_REQUEST
             return Response(response)
