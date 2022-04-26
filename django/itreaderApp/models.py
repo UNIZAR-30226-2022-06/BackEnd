@@ -18,7 +18,7 @@ class Libro(Documento):
 class Usuario(models.Model):
     nombre = models.CharField(max_length=50)
     nomUsuario = models.CharField(max_length=50,unique=True)
-    password = models.CharField(max_length=50)
+    password = models.CharField(max_length=300)
     correo = models.CharField(max_length=50,unique=True)
     esAdmin = models.BooleanField()
     docsAnyadidos = models.ManyToManyField(Libro,related_name='+')

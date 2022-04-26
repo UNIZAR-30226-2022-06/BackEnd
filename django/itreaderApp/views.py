@@ -15,16 +15,30 @@ import email.utils
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from rest_framework.response import Response
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 
 
-def EncryptPassword(request):
-    us = Usuario.objects.get(nomUsuario=request.GET['usuario'])
-    contrasenya = us.password
-    contrasenya2 = make_password(contrasenya)
-    us.password = contrasenya2
-    us.save()
+
+
+    
+class UsuarioLogin(generics.RetrieveAPIView):
+    # API endpoint that returns a single Usuario by pk.
+    lookup_field = 'nomUsuario'
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    def get(self, request, *args, **kwargs):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        if us.password == request.GET['password']:
+        #if check_password(request.GET['password'], us.password)
+            return self.retrieve(request, *args, **kwargs)
+        else:
+            response = {}
+            response['success'] = True
+            response['message'] = "Login no valido"
+            response['status'] = status.HTTP_400_BAD_REQUEST
+            return Response(response)
+         
 
 
 # Create your views here.
@@ -40,9 +54,19 @@ class UsuarioCreate(generics.CreateAPIView):
     # API endpoint that allows creation of a new Usuario
     queryset = Usuario.objects.all()
     serializer_class = UsuarioCreateSerializer
-    def post(self, request, *args, **kwargs):
-        self.create(request, *args, **kwargs)
-        EncryptPassword(request)
+    # def post(self, request, *args, **kwargs):
+    #     self.create(request, *args, **kwargs)
+    #     us = Usuario.objects.get(nomUsuario=request.data['nomUsuario'])
+    #     contrasenya = us.password
+    #     contrasenya2 = make_password(contrasenya)
+    #     us.password = contrasenya2
+    #     us.save()
+    #     response = {}
+    #     response['success'] = True
+    #     response['message'] = "Registro guardado exitosamente"
+    #     response['status'] = status.HTTP_201_CREATED
+    #     return Response(response)
+        
 
 class UsuarioList(generics.ListAPIView):
     # API endpoint that allows Usuario to be viewed.

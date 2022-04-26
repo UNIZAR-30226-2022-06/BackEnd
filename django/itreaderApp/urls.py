@@ -1,6 +1,6 @@
 from django.urls import include, path
-from .views import UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView
-from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete, UserCreate, UserList
+from .views import UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin
+from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete
 from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete
 
@@ -8,10 +8,9 @@ from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete
 
 urlpatterns = [
     path('createUsuario/', UsuarioCreate.as_view(), name='create-usuario'),
-    path('createUser/', UserCreate.as_view(), name='create-user'),
     path('Usuarios/', UsuarioList.as_view(), name='list-Usuarios'),
-    path('Users/', UserList.as_view(), name='list-Users'),
     path('Usuarios/<str:nomUsuario>/', UsuarioDetail.as_view(), name='retrieve-usuario'),
+    path('Login/<str:nomUsuario>/', UsuarioLogin.as_view(), name='login'),
     path('UsuariosCorreo/<str:correo>/', UsuarioDetailCorreo.as_view(), name='retrieve-usuario-correo'),
     path('enviarCorreo/<str:correo>/', EnviarCorreoView.as_view(), name='enviar-correo'),
     path('updateUsuario/<str:nomUsuario>/', UsuarioUpdate.as_view(), name='update-usuario'),
