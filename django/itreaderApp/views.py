@@ -43,10 +43,6 @@ class UsuarioLogin(generics.RetrieveAPIView):
 
 # Create your views here.
 
-class SmallResultsSetPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 20
     
 #USUARIO
 
@@ -72,6 +68,7 @@ class UsuarioList(generics.ListAPIView):
     # API endpoint that allows Usuario to be viewed.
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
+
 
 class UserList(generics.ListAPIView):
     # API endpoint that allows Usuario to be viewed.
@@ -236,6 +233,16 @@ class LibroList(generics.ListAPIView):
     # API endpoint that allows Libro to be viewed.
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
+
+class SmallResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_query_param = 'page'
+
+class LibroListPage(generics.ListAPIView):
+    # API endpoint that allows Libro to be viewed.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+    pagination_class = SmallResultsSetPagination
 
 class LibroDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Libro by pk.

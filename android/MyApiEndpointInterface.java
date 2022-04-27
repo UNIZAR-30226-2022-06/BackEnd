@@ -1,11 +1,11 @@
-package backend;
+package com.softkare.itreader.backend;
 
 import java.util.List;
 
 
-import backend.clasesDB.Documento;
-import backend.clasesDB.Libro;
-import backend.clasesDB.Usuario;
+import com.softkare.itreader.backend.Usuario;
+import com.softkare.itreader.backend.Documento;
+import com.softkare.itreader.backend.Libro;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -69,4 +69,12 @@ public interface MyApiEndpointInterface {
     @GET("Libros/")
     Call<List<Libro>> libroList();
 
+    @GET("LibrosPage/")
+    Call<LibrosPage> librosPage(@Query("page") Integer page);
+
+    @GET("UsuariosCorreo/{correo}")
+    Call<Usuario> checkUser(@Path("correo")String correo);
+
+    @GET("enviarCorreo/{correo}")
+    Call<Usuario> enviarCorreo(@Path("correo")String correo);
 }
