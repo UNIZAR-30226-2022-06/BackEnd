@@ -19,12 +19,10 @@ class LibroSerializer(serializers.ModelSerializer):
 
 
 class UsuarioCreateSerializer(serializers.ModelSerializer):
-    #configuracion = ConfiguracionSerializer(read_only=True)
     class Meta:
         model = Usuario
         fields = ['nombre', 'nomUsuario', 'password', 'correo', 'esAdmin']
-    depth = 1
-
+    
 
 class UserSerializer(serializers.ModelSerializer):
     #configuracion = ConfiguracionSerializer(read_only=True)
@@ -41,34 +39,34 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class UsuarioSerializer(serializers.ModelSerializer):
     #configuracion = ConfiguracionSerializer(read_only=True)
-    docsAnyadidos = DocumentoSerializer(many=True)
+    docsAnyadidos = LibroSerializer(many=True)
     docsSubidos = DocumentoSerializer(many=True)
     class Meta:
         model = Usuario
         fields = '__all__'
-    depth = 1
+    depth = 2
 
 
 class UsuarioAddDocsSerializer(serializers.ModelSerializer):
     #configuracion = ConfiguracionSerializer(read_only=True)
-    docsAnyadidos = DocumentoSerializer(many=True)
+    docsAnyadidos = LibroSerializer(many=True)
     docsSubidos = DocumentoSerializer(many=True)
     class Meta:
         model = Usuario
         fields = '__all__'
     depth = 1
-    def update(self, instance, validated_data):
-        docs_data_an = validated_data.pop('docsAnyadidos')
-        for doc_data in docs_data_an:
-            a = Documento.objects.get(nombre=doc_data["nombre"])
-            instance.docsAnyadidos.add(a)
-            instance.save()
-        docs_data_sub = validated_data.pop('docsSubidos')
-        for doc_data in docs_data_sub:
-            a = Documento.objects.get(nombre=doc_data["nombre"])
-            instance.docsSubidos.add(a)
-            instance.save()
-        return instance
+    # def update(self, instance, validated_data):
+    #     docs_data_an = validated_data.pop('docsAnyadidos')
+    #     for doc_data in docs_data_an:
+    #         a = Libro.objects.get(nombre=doc_data["nombre"])
+    #         instance.docsAnyadidos.add(a)
+    #         instance.save()
+        # docs_data_sub = validated_data.pop('docsSubidos')
+        # for doc_data in docs_data_sub:
+        #     a = Documento.objects.get(nombre=doc_data["nombre"])
+        #     instance.docsSubidos.add(a)
+        #     instance.save()
+        #return instance
 
 class MarcaSerializer(serializers.ModelSerializer):
     usuario = UsuarioSerializer

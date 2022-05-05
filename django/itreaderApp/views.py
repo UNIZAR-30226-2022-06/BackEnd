@@ -17,6 +17,7 @@ from email.mime.text import MIMEText
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
 
 
 
@@ -27,10 +28,11 @@ class UsuarioLogin(generics.RetrieveAPIView):
     lookup_field = 'nomUsuario'
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
         if us.password == request.GET['password']:
-        #if check_password(request.GET['password'], us.password)
+        #if check_password(request.GET['password'], us.password):
+        #if check_password(request.POST['password'], us.password):
             return self.retrieve(request, *args, **kwargs)
         else:
             response = {}
@@ -53,9 +55,13 @@ class UsuarioCreate(generics.CreateAPIView):
     # def post(self, request, *args, **kwargs):
     #     self.create(request, *args, **kwargs)
     #     us = Usuario.objects.get(nomUsuario=request.data['nomUsuario'])
-    #     contrasenya = us.password
-    #     contrasenya2 = make_password(contrasenya)
-    #     us.password = contrasenya2
+    #     # contrasenya = us.password
+    #     # contrasenya2 = make_password(contrasenya)
+    #     # us.password = contrasenya2        
+    #     if request.data['esAdmin'] == 0:
+    #         us.esAdmin = False
+    #     else:
+    #         us.esAdmin = True
     #     us.save()
     #     response = {}
     #     response['success'] = True
@@ -70,15 +76,7 @@ class UsuarioList(generics.ListAPIView):
     serializer_class = UsuarioSerializer
 
 
-class UserList(generics.ListAPIView):
-    # API endpoint that allows Usuario to be viewed.
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
-class UserCreate(generics.CreateAPIView):
-    # API endpoint that allows Usuario to be viewed.
-    queryset = User.objects.all()
-    serializer_class = UserCreateSerializer
 
 class UsuarioDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Usuario by pk.
@@ -110,7 +108,19 @@ class EnviarCorreoView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
 
+        # contrasena = User.objects.make_random_password()
+        # us = Usuario.objects.get(correo=self.kwargs['correo'])
+        # us.password = make_password(contrasena)
+        # us.save()
+
         contrasena = Usuario.objects.get(correo=self.kwargs['correo']).password
+        
+        # contrasena = get_random_string(length=10, allowed_chars='abcde')
+        # us = Usuario.objects.get(correo=request.data['correo'])
+        # us.password = make_password(contrasena)
+        # us.save()
+
+        
         email = self.kwargs['correo']
 
         #email = self.request.query_params.['correo']
@@ -157,9 +167,12 @@ class UsuarioUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
     queryset = Usuario.objects.all()
     lookup_field = 'nomUsuario'
-    serializer_class = UsuarioSerializer
+    serializer_class = UsuarioCreateSerializer
     def put(self, request, *args, **kwargs):
+        #request.data['password'] = make_password(request.data['password'])
         return self.partial_update(request, *args, **kwargs)
+
+
 
 class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
@@ -167,13 +180,41 @@ class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
     lookup_field = 'nomUsuario'
     serializer_class = UsuarioAddDocsSerializer
     def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        libro = Libro.objects.get(nombre=request.data['nomLibro'])
+        beforeInsert = usuario.docsAnyadidos.all().count()
+        usuario.docsAnyadidos.add(libro)
+        afterInsert = usuario.docsAnyadidos.all().count()
+        if (beforeInsert+1) != afterInsert:
+            return Response({'message': 'ERROR: No se ha añadido'}, status=status.HTTP_409_CONFLICT)
+        else:
+            return Response({'message': 'Se ha añadido correctamente'}, status=status.HTTP_200_OK)
+
+
+
+class UsuarioDeleteDocs(generics.RetrieveUpdateAPIView):
+    # API endpoint that allows a Usuario record to be updated.
+    queryset = Usuario.objects.all()
+    lookup_field = 'nomUsuario'
+    serializer_class = UsuarioAddDocsSerializer
+    def put(self, request, *args, **kwargs):      
+        libro = Libro.objects.get(nombre=request.GET['nomLibro'])
+        usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
+        beforeInsert = usuario.docsAnyadidos.all().count()
+        usuario.docsAnyadidos.remove(libro)
+        afterInsert = usuario.docsAnyadidos.all().count()
+        if beforeInsert == afterInsert:
+            return Response({'message': 'ERROR: No se ha borrado'}, status=status.HTTP_409_CONFLICT)
+        else:
+            return Response({'message': 'Se ha borrado correctamente'}, status=status.HTTP_200_OK)
+
        
 class UsuarioDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Usuario record to be deleted.
     queryset = Usuario.objects.all()
     lookup_field = 'nomUsuario'
     serializer_class = UsuarioSerializer
+
 
 #Documento
 
@@ -186,6 +227,7 @@ class DocumentoDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Documento by pk.
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
+    lookup_field = 'nombre'
 
 class DocumentoUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Documento record to be updated.
@@ -248,18 +290,32 @@ class LibroDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Libro by pk.
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
+    lookup_field = 'nombre'
 
 class LibroUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Libro record to be updated.
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
+    lookup_field = 'nombre'
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
 class LibroDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Libro record to be deleted.
     queryset = Libro.objects.all()
+    lookup_field = 'nombre'
     serializer_class = LibroSerializer
+
+class ValorarLibro(generics.RetrieveUpdateAPIView):
+    # API endpoint that allows a Usuario record to be updated.
+    queryset = Libro.objects.all()
+    lookup_field = 'nombre'
+    serializer_class = LibroSerializer
+    def put(self, request, *args, **kwargs):
+        libro = Libro.objects.get(nombre=self.kwargs['nombre'])
+        request.data['numValoraciones'] = libro.numValoraciones + 1
+        request.data['valoracion'] = ((libro.valoracion*(libro.numValoraciones))+request.data['valoracion'])/request.data['numValoraciones']
+        return self.partial_update(request, *args, **kwargs)
 
 
 #Marca

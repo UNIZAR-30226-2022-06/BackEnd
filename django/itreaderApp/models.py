@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Documento(models.Model):
-    nombre = models.CharField(max_length=50)
+    nombre = models.CharField(max_length=50,unique=True)
     formato = models.CharField(max_length=5)
     linkDocumento = models.CharField(max_length=500)
     #autor = models.CharField(max_length=100,null=True,blank=True)
@@ -14,6 +14,9 @@ class Documento(models.Model):
 class Libro(Documento):
     linkPortada = models.CharField(max_length=500)
     autor = models.CharField(max_length=100)
+    editorial = models.CharField(max_length=100,null=True,blank=True)
+    valoracion = models.FloatField(default=0.0)
+    numValoraciones = models.PositiveIntegerField(default=0)
 
 class Usuario(models.Model):
     nombre = models.CharField(max_length=50)
