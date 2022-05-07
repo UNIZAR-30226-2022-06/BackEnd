@@ -9,10 +9,7 @@ class DocumentoSerializer(serializers.ModelSerializer):
         model = Documento
         fields = '__all__'
 
-
-
-class LibroSerializer(serializers.ModelSerializer):
-    
+class LibroSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Libro
         fields = '__all__'

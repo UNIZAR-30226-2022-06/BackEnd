@@ -2,9 +2,7 @@ from django.urls import include, path
 from .views import UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin
 from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete, LibroListPage, ValorarLibro
-from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete
-
-
+from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete, LeerLibro
 
 urlpatterns = [
     path('createUsuario/', UsuarioCreate.as_view(), name='create-usuario'),
@@ -35,5 +33,7 @@ urlpatterns = [
     path('Marcas/<int:pk>/', MarcaDetail.as_view(), name='retrieve-Marca'),
     path('updateMarca/<int:pk>/', MarcaUpdate.as_view(), name='update-Marca'),
     path('deleteMarca/<int:pk>/', MarcaDelete.as_view(), name='delete-Marca'),
+
+    path('leerLibro/<str:nombre>/<int:pagina>', LeerLibro.as_view()),
 
 ]

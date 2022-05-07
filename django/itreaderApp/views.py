@@ -1,6 +1,8 @@
 from pyexpat import model
 from django.conf import Settings, SettingsReference, settings
 from django.shortcuts import render
+
+from itreaderPr.settings import MEDIA_URL
 from .models import Usuario, Documento, Libro, Marca
 from rest_framework import generics, status
 from .serializers import UsuarioSerializer, UsuarioCreateSerializer, UsuarioAddDocsSerializer, DocumentoSerializer, LibroSerializer, MarcaSerializer, UserSerializer, UserCreateSerializer
@@ -18,10 +20,8 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
-
-
-
-
+from utils.operations import *
+from rest_framework import viewsets
     
 class UsuarioLogin(generics.RetrieveAPIView):
     # API endpoint that returns a single Usuario by pk.
@@ -365,5 +365,30 @@ class MarcaDelete(generics.RetrieveDestroyAPIView):
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
 
+#
+# NUEVO
+#
+class LeerLibro(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
 
-    
+    def get(self, request, *args, **kwargs):
+        nombre=self.kwargs['nombre']
+        pagina=self.kwargs['pagina']
+        contenido=traducir_archivo(nombre+'.epub',pagina,local_media)
+        return Response({'libro': nombre, 
+                        'pagina': pagina,
+                        'contenido': contenido}, status=status.HTTP_200_OK)
+
+
+class SubirLibro(viewsets.ModelViewSet):
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+
+    def post(self, request, *args, **kwargs):
+        title = request.data['title']
+        formato = request.data['formato']
+        cover = request.data['cover']
+        Documento.objects.create(nombre=title, formato=formato, linkDocumento='a',cover=cover)
+        return HttpResponse({'message': 'Book created'}, status=200)
