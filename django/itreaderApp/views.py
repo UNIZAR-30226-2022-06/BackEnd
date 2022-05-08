@@ -382,13 +382,12 @@ class LeerLibro(generics.ListAPIView):
                         'contenido': contenido}, status=status.HTTP_200_OK)
 
 
-class SubirLibro(viewsets.ModelViewSet):
+class upload_file(generics.ListAPIView):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
 
     def post(self, request, *args, **kwargs):
         title = request.data['title']
-        formato = request.data['formato']
         cover = request.data['cover']
-        Documento.objects.create(nombre=title, formato=formato, linkDocumento='a',cover=cover)
+        Documento.objects.create(nombre=title,formato='epub',linkDocumento='a', cover=cover)
         return HttpResponse({'message': 'Book created'}, status=200)
