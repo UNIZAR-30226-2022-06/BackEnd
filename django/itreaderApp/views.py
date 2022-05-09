@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
-from utils.operations import traducir_archivo, local_media
+from utils.operations import traducir_archivo, local_media, busca
 from rest_framework import viewsets
     
 class UsuarioLogin(generics.RetrieveAPIView):
@@ -374,9 +374,22 @@ class LeerLibro(generics.ListAPIView):
     serializer_class = LibroSerializer
 
     def get(self, request, *args, **kwargs):
-        nombre=self.kwargs['nombre']
+        nombre=self.kwargs['nombre'] # libro.epub o libro.pdf
         pagina=self.kwargs['pagina']
-        contenido=traducir_archivo(nombre+'.epub',pagina,local_media)
+        split_archivo = nombre.split(".", 1)
+        if(split_archivo[1]=='epub'):
+            contenido=traducir_archivo(nombre,pagina,local_media)
+            if contenido == 'ERROR':
+                contenido = 'ERROR: EPUB no existente'
+        elif(split_archivo[1]=='pdf'):
+            query = 'title = \'' + nombre + '\''
+            f = busca(query) #"title = 'prueba.pdf'"
+            if f == []:
+                contenido = 'ERROR: PDF no existente'
+            else:
+                contenido = f[0]['embedLink']
+        else:
+            contenido = 'ERROR: Formato no existente'
         return Response({'libro': nombre, 
                         'pagina': pagina,
                         'contenido': contenido}, status=status.HTTP_200_OK)

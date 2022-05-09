@@ -57,9 +57,11 @@ def descargar_archivo_por_nombre(nombre_archivo, local_location):
     credenciales = login()
     lista_archivos = credenciales.ListFile({'q': "title = '" + nombre_archivo + "'"}).GetList()
     if not lista_archivos:
-        print('No se encontro el archivo: ' + nombre_archivo)
-    archivo = credenciales.CreateFile({'id': lista_archivos[0]['id']}) 
-    archivo.GetContentFile(local_location + nombre_archivo)
+        #print('No se encontro el archivo: ' + nombre_archivo)
+        return 'ERROR'
+    else:
+        archivo = credenciales.CreateFile({'id': lista_archivos[0]['id']}) 
+        archivo.GetContentFile(local_location + nombre_archivo)
 
 # BUSCAR ARCHIVOS
 def busca(query):
@@ -72,29 +74,29 @@ def busca(query):
     # Archivos en el basurero: trashed=true
     # Archivos que se llamen 'mooncode' y no esten en el basurero: title = 'mooncode' and trashed = false
     lista_archivos = credenciales.ListFile({'q': query}).GetList()
-    for f in lista_archivos:
+    #for f in lista_archivos:
         # ID Drive
-        print('ID Drive:',f['id'])
+    #    print('ID Drive:',f['id'])
         # Link de visualizacion embebido (mostrar archivo sin salir de la página)
-        print('Link de visualizacion embebido:',f['embedLink'])
+    #    print('Link de visualizacion embebido:',f['embedLink'])
         # Link de descarga
-        print('Link de descarga:',f['downloadUrl'])
+    #    print('Link de descarga:',f['downloadUrl'])
         # Nombre del archivo
-        print('Nombre del archivo:',f['title'])
+    #    print('Nombre del archivo:',f['title'])
         # Tipo de archivo
-        print('Tipo de archivo:',f['mimeType'])
+    #    print('Tipo de archivo:',f['mimeType'])
         # Esta en el basurero
-        print('Esta en el basurero:',f['labels']['trashed'])
+    #    print('Esta en el basurero:',f['labels']['trashed'])
         # Fecha de creacion
-        print('Fecha de creacion:',f['createdDate'])
+    #    print('Fecha de creacion:',f['createdDate'])
         # Fecha de ultima modificacion
-        print('Fecha de ultima modificacion:',f['modifiedDate'])
+    #    print('Fecha de ultima modificacion:',f['modifiedDate'])
         # Version
-        print('Version:',f['version'])
+    #    print('Version:',f['version'])
         # Tamanio
-        print('Tamanio:',f['fileSize'])
-        resultado.append(f)
-    return resultado
+    #    print('Tamanio:',f['fileSize'])
+    #resultado.append(f)
+    return lista_archivos # resultado
 
 # CREAR CARPETA EN LA UNIDAD
 def crear_carpeta(nombre_carpeta):
@@ -150,7 +152,9 @@ def traducir_archivo(archivo, numero_pagina, local_dir):
     numero_pagina = numero_pagina - 1
     split_archivo = archivo.split(".", 1)
     if not os.path.isfile(local_dir+archivo) and not os.path.isfile(local_dir+split_archivo[0]+".txt"):
-        descargar_archivo_por_nombre(archivo, local_dir)
+        res = descargar_archivo_por_nombre(archivo, local_dir)
+        if (res == 'ERROR'):
+            return 'ERROR'
     if (split_archivo[1]=='pdf'):
         local_archivo = open(local_dir+archivo, 'rb')
         pdfReader = PyPDF2.PdfFileReader(local_archivo) # print(pdfReader.numPages)
@@ -179,14 +183,15 @@ def traducir_archivo(archivo, numero_pagina, local_dir):
        print("EXTENSION DIFERENTE")
 
 if __name__ == "__main__":
-    traducir_archivo("libro.epub", 7, local_file_location)
+    #traducir_archivo("libro.epub", 7, local_file_location)
     #delete_archivo("libro.txt", local_file_location)
     #convert_epub_pdf("libro.epub")
     #subir_archivo("prueba.pdf",file_id_folder, local_file_location)
     #descargar_libro_por_nombre('1.png')
     #crear_archivo_texto('Hola_mundo', 'Holi')
     #subir_libro('prueba.pdf')
-    #busca("title = 'prueba.pdf' and trashed=false")
+    f = busca("title = 'prueba.pdf'")
+    print(f[1]['embedLink'])
     #ruta_archivo = '/home/falv/Escritorio/fondo.jpg'
     #id_folder = '0AI_9cD6f9EEZUk9PVA'
     #id_drive = '1LVdc-DUwr30kfrA30cVO3K92RVh56pmw'
