@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
-from utils.operations import *
+from utils.operations import traducir_archivo, local_media
 from rest_framework import viewsets
     
 class UsuarioLogin(generics.RetrieveAPIView):

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'itreaderApp',
-    'whitenoise.runserver_nostatic', # add this
+    'whitenoise.runserver_nostatic', # add this 
     'django_filters',
     'corsheaders',  # add this
 ]

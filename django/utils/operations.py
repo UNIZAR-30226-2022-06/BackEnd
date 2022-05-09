@@ -10,8 +10,8 @@ main_id_folder = '0AHc558HLxAXpUk9PVA'
 file_id_folder = "1FEctPuVXqzFzAnp4hV2zD0cvaw0pi-wE"
 imagen_id_folder = "1ozwxIKKXnb0TRRg2jgPm3EfAZGpmXcn_"
 # RUTAS DE LAS CARPETAS DONDE SE DESCARGAN LOS ARCHIVOS
-local_file_location = './utils/libros_local/'
-local_imagen_location = './utils/imagen_local/'
+local_file_location = './libros_local/'
+local_imagen_location = './imagen_local/'
 local_media = './media/'
 # LINEAS POR PÁGINA
 lineas_pagina = 20
@@ -179,10 +179,10 @@ def traducir_archivo(archivo, numero_pagina, local_dir):
        print("EXTENSION DIFERENTE")
 
 if __name__ == "__main__":
-    #traducir_archivo("libro.epub", 7)
+    traducir_archivo("libro.epub", 7, local_file_location)
     #delete_archivo("libro.txt", local_file_location)
     #convert_epub_pdf("libro.epub")
-    subir_archivo("prueba.pdf",file_id_folder, local_file_location)
+    #subir_archivo("prueba.pdf",file_id_folder, local_file_location)
     #descargar_libro_por_nombre('1.png')
     #crear_archivo_texto('Hola_mundo', 'Holi')
     #subir_libro('prueba.pdf')
