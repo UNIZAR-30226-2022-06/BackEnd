@@ -1,6 +1,6 @@
 import os, PyPDF2, convertapi, re
 from fpdf import FPDF
-from epub2txt import epub2txt
+from utils.epub2txt import epub2txt
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
@@ -109,8 +109,8 @@ def crear_carpeta(nombre_carpeta):
 
 # Borra el 'archivo', que se encuentra en 'local_location'
 def delete_archivo(archivo, local_location):
-    if os.path.isfile(local_file_location+archivo):
-        os.remove(local_file_location+archivo)
+    if os.path.isfile(local_location+archivo):
+        os.remove(local_location+archivo)
 
 # Convierte  un archivo .txt a .pdf, con el mismo nombre, que se encuentra en 'local_file'
 def convert_txt_pdf(archivo, local_file):

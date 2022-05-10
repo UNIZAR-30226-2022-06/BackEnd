@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from urllib import response
 from django.conf import settings
 from os import environ
+import os
 import smtplib
 import email.utils
 from email.mime.multipart import MIMEMultipart
@@ -20,7 +21,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
-from utils.operations import traducir_archivo, local_media, busca
+from utils.operations import traducir_archivo, local_media, busca, subir_archivo, file_id_folder, delete_archivo
 from rest_framework import viewsets
     
 class UsuarioLogin(generics.RetrieveAPIView):
@@ -382,7 +383,7 @@ class LeerLibro(generics.ListAPIView):
             if contenido == 'ERROR':
                 contenido = 'ERROR: EPUB no existente'
         elif(split_archivo[1]=='pdf'):
-            query = 'title = \'' + nombre + '\''
+            query = 'title = \'' + nombre + '\' and trashed = false'
             f = busca(query) #"title = 'prueba.pdf'"
             if f == []:
                 contenido = 'ERROR: PDF no existente'
@@ -402,5 +403,8 @@ class upload_file(generics.ListAPIView):
     def post(self, request, *args, **kwargs):
         title = request.data['title']
         cover = request.data['cover']
+        print(cover)
         Documento.objects.create(nombre=title,formato='epub',linkDocumento='a', cover=cover)
+        subir_archivo(title,file_id_folder,local_media)
+        delete_archivo(title, local_media)
         return HttpResponse({'message': 'Book created'}, status=200)
