@@ -401,10 +401,42 @@ class upload_file(generics.ListAPIView):
     serializer_class = DocumentoSerializer
 
     def post(self, request, *args, **kwargs):
-        title = request.data['title']
+        usuario = request.data['usuario']
         cover = request.data['cover']
-        print(cover)
-        Documento.objects.create(nombre=title,formato='epub',linkDocumento='a', cover=cover)
-        subir_archivo(title,file_id_folder,local_media)
-        delete_archivo(title, local_media)
+        split_archivo = str(cover).split(".", 1)
+        doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=cover)
+        usuarioObj = Usuario.objects.get(nomUsuario=usuario)
+        usuarioObj.docsSubidos.add(doc)
+        new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+        os.rename(local_media+str(cover), local_media+new_name)
+        subir_archivo(new_name,file_id_folder,local_media)
+        delete_archivo(new_name, local_media)
         return HttpResponse({'message': 'Book created'}, status=200)
+
+class LeerLibroUsuario(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+
+    def get(self, request, *args, **kwargs):
+        usuario=self.kwargs['usuario']
+        nom=self.kwargs['nombre'] # libro.epub o libro.pdf
+        pagina=self.kwargs['pagina']
+        split_archivo = nom.split(".", 1)
+        nombre = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+        if(split_archivo[1]=='epub'):
+            contenido=traducir_archivo(nombre,pagina,local_media)
+            if contenido == 'ERROR':
+                contenido = 'ERROR: EPUB no existente'
+        elif(split_archivo[1]=='pdf'):
+            query = 'title = \'' + nombre + '\' and trashed = false'
+            f = busca(query) #"title = 'prueba.pdf'"
+            if f == []:
+                contenido = 'ERROR: PDF no existente'
+            else:
+                contenido = f[0]['embedLink']
+        else:
+            contenido = 'ERROR: Formato no existente'
+        return Response({'libro': nom, 
+                        'pagina': pagina,
+                        'contenido': contenido}, status=status.HTTP_200_OK)

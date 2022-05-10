@@ -1,5 +1,5 @@
 from django.urls import include, path
-from .views import UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin
+from .views import LeerLibroUsuario, UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin
 from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete, LibroListPage, ValorarLibro
 from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete, LeerLibro, upload_file
@@ -35,6 +35,7 @@ urlpatterns = [
     path('deleteMarca/<int:pk>/', MarcaDelete.as_view(), name='delete-Marca'),
 
     path('leerLibro/<str:nombre>/<int:pagina>', LeerLibro.as_view()),
+    path('leerLibro/<str:usuario>/<str:nombre>/<int:pagina>', LeerLibroUsuario.as_view()),
     path('subirLibro/', upload_file.as_view()),
 
 ]

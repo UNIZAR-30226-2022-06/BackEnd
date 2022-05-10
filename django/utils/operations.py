@@ -36,11 +36,9 @@ def login():
 # SUBIR UN ARCHIVO CON NOMBRE 'archivo' DESDE 'file_location' A LA CARPETA DE DRIVE CON ID 'id_folder'
 def subir_archivo(archivo, id_folder, file_location):
     ruta_archivo = file_location + archivo
-    print(ruta_archivo)
     credenciales = login()
     archivo = credenciales.CreateFile({'parents': [{"kind": "drive#fileLink",\
                                                     "id": id_folder}]})
-    print(ruta_archivo)
     archivo['title'] = ruta_archivo.split("/")[-1]
     archivo.SetContentFile(ruta_archivo)
     archivo.Upload()

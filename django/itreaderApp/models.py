@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here. manage.py migrate --run-syncdb
 
 class Documento(models.Model):
-    nombre = models.CharField(max_length=50,unique=True)
+    nombre = models.CharField(max_length=50)
     formato = models.CharField(max_length=5)
     linkDocumento = models.CharField(max_length=500)
     cover = models.FileField(blank=True, null=True, upload_to='.')

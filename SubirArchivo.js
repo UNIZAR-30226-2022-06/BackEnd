@@ -11,7 +11,8 @@ function App() {
 
   const newBook = () => {
     const uploadData = new FormData();
-    uploadData.append('title', title);
+    uploadData.append('usuario', title);
+    uploadData.append('title', 'libro');
     uploadData.append('formato', 'epub');
     uploadData.append('cover', cover, cover.name);
     
