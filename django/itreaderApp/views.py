@@ -404,14 +404,21 @@ class upload_file(generics.ListAPIView):
         usuario = request.data['usuario']
         cover = request.data['cover']
         split_archivo = str(cover).split(".", 1)
-        doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=cover)
         usuarioObj = Usuario.objects.get(nomUsuario=usuario)
-        usuarioObj.docsSubidos.add(doc)
-        new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
-        os.rename(local_media+str(cover), local_media+new_name)
-        subir_archivo(new_name,file_id_folder,local_media)
-        delete_archivo(new_name, local_media)
-        return HttpResponse({'message': 'Book created'}, status=200)
+        if usuarioObj.esAdmin:
+            doc = Libro.objects.create(linkPortada=str(cover),
+                autor='David',editorial='Planeta', coverLib=cover, valoracion=0, numValoraciones=0)
+            subir_archivo(str(cover),file_id_folder,local_media)
+            delete_archivo(str(cover), local_media)
+            return HttpResponse({'message': 'Book created'}, status=200)
+        else:
+            doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=cover)
+            usuarioObj.docsSubidos.add(doc)
+            new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+            os.rename(local_media+str(cover), local_media+new_name)
+            subir_archivo(new_name,file_id_folder,local_media)
+            delete_archivo(new_name, local_media)
+            return HttpResponse({'message': 'Book created'}, status=200)
 
 class LeerLibroUsuario(generics.ListAPIView):
     # API endpoint that allows a Libro record to be updated.

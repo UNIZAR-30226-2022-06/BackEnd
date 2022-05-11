@@ -17,6 +17,7 @@ class Libro(models.Model):
     linkPortada = models.CharField(max_length=32, blank=False, null=True)
     autor = models.CharField(max_length=100,null=True)
     editorial = models.CharField(max_length=100,null=True,blank=True)
+    coverLib = models.FileField(blank=True, null=True, upload_to='.')
     valoracion = models.FloatField(default=0.0)
     numValoraciones = models.PositiveIntegerField(default=0)
 
