@@ -1,8 +1,8 @@
 from django.urls import include, path
-from .views import LeerLibroUsuario, UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin
+from .views import BorrarLibroUsuario, LeerLibroUsuario, UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin
 from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete, LibroListPage, ValorarLibro
-from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete, LeerLibro, upload_file
+from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete, LeerLibro, upload_file, LeerLibroWeb, LeerLibroUsuarioWeb
 
 urlpatterns = [
     path('createUsuario/', UsuarioCreate.as_view(), name='create-usuario'),
@@ -37,5 +37,8 @@ urlpatterns = [
     path('leerLibro/<str:nombre>/<int:pagina>', LeerLibro.as_view()),
     path('leerLibro/<str:usuario>/<str:nombre>/<int:pagina>', LeerLibroUsuario.as_view()),
     path('subirLibro/', upload_file.as_view()),
+    path('borrarLibro/<str:usuario>/<str:nombre>', BorrarLibroUsuario.as_view()),
+    path('leerLibroWeb/<str:nombre>/', LeerLibroWeb.as_view()),
+    path('leerLibroWeb/<str:usuario>/<str:nombre>/', LeerLibroUsuarioWeb.as_view()),
 
 ]

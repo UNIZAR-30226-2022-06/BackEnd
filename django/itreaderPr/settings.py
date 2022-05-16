@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'itreaderPr.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dao3dd2v0g0s49',
-        'USER': 'cfdqcmyvpqxusc',
-        'PASSWORD': 'cba9191f9a09cd219c5f3a1de43864433aeb14947b644d15384dbc274444bd76',
-        'HOST': 'ec2-176-34-211-0.eu-west-1.compute.amazonaws.com',
+        'NAME': 'd1lv0b6rtuabqd',
+        'USER': 'igkkmwjkmjsuhw',
+        'PASSWORD': '9ad1dca0ad15d652a71b2276ec5feb10c294faf0b22f5fa05be8287c3c50b12e',
+        'HOST': 'ec2-34-246-227-219.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
     }
 }

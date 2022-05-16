@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
-from utils.operations import traducir_archivo, local_media, busca, subir_archivo, file_id_folder, delete_archivo
+from utils.operations import traducir_archivo, local_media, busca, subir_archivo, file_id_folder, delete_archivo, borrar_recuperar
 from rest_framework import viewsets
     
 class UsuarioLogin(generics.RetrieveAPIView):
@@ -395,7 +395,6 @@ class LeerLibro(generics.ListAPIView):
                         'pagina': pagina,
                         'contenido': contenido}, status=status.HTTP_200_OK)
 
-
 class upload_file(generics.ListAPIView):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
@@ -446,4 +445,60 @@ class LeerLibroUsuario(generics.ListAPIView):
             contenido = 'ERROR: Formato no existente'
         return Response({'libro': nom, 
                         'pagina': pagina,
+                        'contenido': contenido}, status=status.HTTP_200_OK)
+
+class BorrarLibroUsuario(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+
+    def get(self, request, *args, **kwargs):
+        usuario = request.data['usuario']
+        nom=self.kwargs['nombre'] # libro.epub o libro.pdf
+        usuarioObj = Usuario.objects.get(nomUsuario=usuario)
+        if usuarioObj.esAdmin:
+            Libro.objects.filter(linkPortada=nom).delete()
+            borrar_recuperar(nombre)
+            return HttpResponse({'message': 'Book deleted'}, status=200)
+        else:
+            split_archivo = nom.split(".", 1)
+            nombre = split_archivo[0]+'_'+usuario+'.'
+            usuarioObj.docsSubidos.filter(linkPortada=nom).delete()
+            new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+            borrar_recuperar(new_name)
+            return HttpResponse({'message': 'Book deleted'}, status=200)
+
+class LeerLibroWeb(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+
+    def get(self, request, *args, **kwargs):
+        nombre=self.kwargs['nombre'] # libro.epub o libro.pdf
+        query = 'title = \'' + nombre + '\' and trashed = false'
+        f = busca(query) #"title = 'prueba.pdf'"
+        if f == []:
+            contenido = 'ERROR: Archivo no existente'
+        else:
+                contenido = f[0]['embedLink']
+        return Response({'libro': nombre,
+                        'contenido': contenido}, status=status.HTTP_200_OK)
+
+class LeerLibroUsuarioWeb(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+
+    def get(self, request, *args, **kwargs):
+        usuario=self.kwargs['usuario']
+        nom=self.kwargs['nombre'] # libro.epub o libro.pdf
+        split_archivo = nom.split(".", 1)
+        nombre = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+        query = 'title = \'' + nombre + '\' and trashed = false'
+        f = busca(query) #"title = 'prueba.pdf'"
+        if f == []:
+            contenido = 'ERROR: Archivo no existente'
+        else:
+                contenido = f[0]['embedLink']
+        return Response({'libro': nom, 
                         'contenido': contenido}, status=status.HTTP_200_OK)

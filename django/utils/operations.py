@@ -61,6 +61,14 @@ def descargar_archivo_por_nombre(nombre_archivo, local_location):
         archivo = credenciales.CreateFile({'id': lista_archivos[0]['id']}) 
         archivo.GetContentFile(local_location + nombre_archivo)
 
+# BORRAR/RECUPERAR ARCHIVOS EN DRIVE
+def borrar_recuperar(nombre_archivo):
+    credenciales = login()
+    lista_archivos = credenciales.ListFile({'q': "title = '" + nombre_archivo + "'"}).GetList()
+    if lista_archivos:
+        archivo = credenciales.CreateFile({'id': lista_archivos[0]['id']}) 
+        archivo.Delete()
+
 # BUSCAR ARCHIVOS
 def busca(query):
     resultado = []
