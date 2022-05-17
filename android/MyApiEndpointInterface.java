@@ -14,6 +14,8 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -76,9 +78,6 @@ public interface MyApiEndpointInterface {
     @GET("Libros/")
     Call<List<Libro>> libroList();
 
-    @GET("LibrosPage/")
-    Call<LibrosPage> librosPage(@Query("page") Integer page);
-
     @GET("UsuariosCorreo/{correo}")
     Call<Usuario> checkUser(@Path("correo")String correo);
 
@@ -86,6 +85,10 @@ public interface MyApiEndpointInterface {
     Call<Usuario> enviarCorreo(@Path("correo")String correo);
 
     @POST("subirLibro2/{filename}/")
-    Call<ResponseBody> subirLibro(@Path("filename") String filename, @Query("usuario") String usuario, @Part MultipartBody.Part file);
+    Call<ResponseBody> subirLibro2(@Path("filename") String filename, @Query("usuario") String usuario, @Part MultipartBody.Part file);
     //Call<ResponseBody> subirLibro(@Part("description") RequestBody description, @Part MultipartBody.Part file);
+
+    @FormUrlEncoded
+    @POST("subirLibro/")
+    Call<ResponseBody> subirLibro(@Field("usuario") String usuario, @Field("cover") File cover);
 }

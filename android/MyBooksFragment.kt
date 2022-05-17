@@ -112,7 +112,8 @@ class MyBooksFragment : Fragment() {
 
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-        service.subirLibro(file.name,sharedPreferences.prefs.getUsername(),body).enqueue(object : Callback<ResponseBody> {
+        //service.subirLibro2(file.name,sharedPreferences.prefs.getUsername(),body).enqueue(object : Callback<ResponseBody> {
+        service.subirLibro(sharedPreferences.prefs.getUsername(),file).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if(response.body() != null){
                     println("LIBRO SUBIDO")
