@@ -1,11 +1,14 @@
 package com.softkare.itreader.backend;
 
+import java.io.File;
 import java.util.List;
 
 
 import com.softkare.itreader.backend.Usuario;
 import com.softkare.itreader.backend.Documento;
 import com.softkare.itreader.backend.Libro;
+
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -14,6 +17,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -44,6 +48,9 @@ public interface MyApiEndpointInterface {
 
     @PUT("addDocsUsuario/{nomUsuario}/")
     Call<Usuario> addDocsUser(@Path("nomUsuario") String nomUsuarioDestino, @Body RequestBody body);
+
+    @PUT("deleteDocUsuario/{nomUsuario}/")
+    Call<Usuario> deleteDocUser(@Path("nomUsuario") String nomUsuarioDestino, @Query("nomLibro") String nomLibro);
 
     @DELETE("deleteUsuario/{nomUsuario}/")
     Call<ResponseBody> deleteUser(@Path("nomUsuario") String nomUsuario);
@@ -77,4 +84,8 @@ public interface MyApiEndpointInterface {
 
     @GET("enviarCorreo/{correo}")
     Call<Usuario> enviarCorreo(@Path("correo")String correo);
+
+    @POST("subirLibro2/{filename}/")
+    Call<ResponseBody> subirLibro(@Path("filename") String filename, @Query("usuario") String usuario, @Part MultipartBody.Part file);
+    //Call<ResponseBody> subirLibro(@Part("description") RequestBody description, @Part MultipartBody.Part file);
 }

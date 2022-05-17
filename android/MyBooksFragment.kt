@@ -112,7 +112,7 @@ class MyBooksFragment : Fragment() {
 
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-        service.subirLibro(sharedPreferences.prefs.getUsername(),body).enqueue(object : Callback<ResponseBody> {
+        service.subirLibro(file.name,sharedPreferences.prefs.getUsername(),body).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if(response.body() != null){
                     println("LIBRO SUBIDO")
@@ -127,7 +127,7 @@ class MyBooksFragment : Fragment() {
 
         })
     }
-    
+
     private fun getList(recyclerView: RecyclerView) {
         val retrofit = Retrofit.Builder()
             .baseUrl(MyApiEndpointInterface.BASE_URL)
