@@ -16,7 +16,7 @@ class App extends Component {
     //axios.post('https://db-itreader-unizar.herokuapp.com/itreaderApp/createUsuario/', persona)
         //.then(response => this.setState({ status: true }));
     /* Ejemplo obtener todos los usuarios */
-    axios.get('https://db-itreader-unizar.herokuapp.com/itreaderApp/leerLibro/libro/1')
+    axios.get('https://db-itreader-unizar.herokuapp.com/itreaderApp/leerLibro/libro.epub/1')
       .then(res => {
         const persons = res.data;
         this.setState({ persons });
