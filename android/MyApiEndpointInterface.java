@@ -83,12 +83,20 @@ public interface MyApiEndpointInterface {
 
     @GET("enviarCorreo/{correo}")
     Call<Usuario> enviarCorreo(@Path("correo")String correo);
-
+     
+    @FormUrlEncoded
+    @POST("subirLibro/")
+    Call<ResponseBody> subirLibro(@Field("usuario") String usuario, @Field("cover") File cover);
+    
     @POST("subirLibro2/{filename}/")
     Call<ResponseBody> subirLibro2(@Path("filename") String filename, @Query("usuario") String usuario, @Part MultipartBody.Part file);
     //Call<ResponseBody> subirLibro(@Part("description") RequestBody description, @Part MultipartBody.Part file);
 
-    @FormUrlEncoded
-    @POST("subirLibro/")
-    Call<ResponseBody> subirLibro(@Field("usuario") String usuario, @Field("cover") File cover);
+    @GET("leerLibro/{nombre}/{pagina}")
+    Call<ResponseBody> leerLibro(@Path("nombre") String nombre, @Path("pagina") Integer pagina);
+
+    @GET("leerLibro/{usuario}/{nombre}/{pagina}")
+    Call<ResponseBody> leerLibroUsuario(@Path("usuario") String usuario, @Path("nombre") String nombre, @Path("pagina") Integer pagina);
+
+
 }
