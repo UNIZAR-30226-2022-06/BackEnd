@@ -13,7 +13,7 @@ class Documento(models.Model):
     def __str__(self):
         return self.nombre
 
-class Libro(models.Model):
+class Libro(Documento):
     linkPortada = models.CharField(max_length=32, blank=False, null=True)
     autor = models.CharField(max_length=100,null=True)
     editorial = models.CharField(max_length=100,null=True,blank=True)
