@@ -28,7 +28,7 @@ class Usuario(models.Model):
     correo = models.CharField(max_length=50,unique=True)
     esAdmin = models.BooleanField()
     docsAnyadidos = models.ManyToManyField(Libro,related_name='+')
-    docsSubidos = models.ManyToManyField(Documento,related_name='+')
+    docsSubidos = models.ManyToManyField(Documento,related_name='subidoPor')
     #Configuracion
     letraSize = models.PositiveIntegerField(null=True,blank=True)
     letraStyle = models.CharField(max_length=30,null=True,blank=True)
