@@ -35,7 +35,7 @@ urlpatterns = [
     path('Marcas/<str:nombre>/', MarcaDetail.as_view(), name='retrieve-Marca'),
     path('MarcasUsuario/<str:nomUsuario>/', MarcaListUsuario.as_view(), name='retrieve-Marca'),
     path('updateMarca/<int:pk>/', MarcaUpdate.as_view(), name='update-Marca'),
-    path('deleteMarca/<str:nombre/', MarcaDelete.as_view(), name='delete-Marca'),
+    path('deleteMarca/<str:nombre>/', MarcaDelete.as_view(), name='delete-Marca'),
 
     path('leerLibro/<str:nombre>/<int:pagina>', LeerLibro.as_view()),
     path('leerLibro/<str:usuario>/<str:nombre>/<int:pagina>', LeerLibroUsuario.as_view()),
