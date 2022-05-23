@@ -14,7 +14,7 @@ class Documento(models.Model):
         return self.nombre
 
 class Libro(models.Model):
-    linkPortada = models.CharField(max_length=32, blank=False, null=True)
+    linkPortada = models.CharField(max_length=100, blank=False, null=True)
     nombre = models.CharField(max_length=100,null=True)
     autor = models.CharField(max_length=100,null=True)
     editorial = models.CharField(max_length=100,null=True,blank=True)
