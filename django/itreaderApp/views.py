@@ -1,3 +1,4 @@
+from cgitb import lookup
 from pyexpat import model
 from django.conf import Settings, SettingsReference, settings
 from django.shortcuts import render
@@ -194,7 +195,7 @@ class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
 
 
 
-class UsuarioDeleteDocs(generics.RetrieveUpdateAPIView):
+class UsuarioDeleteLibro(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
     queryset = Usuario.objects.all()
     lookup_field = 'nomUsuario'
@@ -205,6 +206,24 @@ class UsuarioDeleteDocs(generics.RetrieveUpdateAPIView):
         beforeInsert = usuario.docsAnyadidos.all().count()
         usuario.docsAnyadidos.remove(libro)
         afterInsert = usuario.docsAnyadidos.all().count()
+        if beforeInsert == afterInsert:
+            return Response({'message': 'ERROR: No se ha borrado'}, status=status.HTTP_409_CONFLICT)
+        else:
+            return Response({'message': 'Se ha borrado correctamente'}, status=status.HTTP_200_OK)
+
+
+class UsuarioDeleteDocs(generics.RetrieveUpdateAPIView):
+    # API endpoint that allows a Usuario record to be updated.
+    queryset = Usuario.objects.all()
+    lookup_field = 'nomUsuario'
+    serializer_class = UsuarioAddDocsSerializer
+    def put(self, request, *args, **kwargs):      
+        doc = Documento.objects.get(nombre=request.GET['nomLibro'])
+        usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
+        beforeInsert = usuario.docsAnyadidos.all().count()
+        usuario.docsSubidos.remove(doc)
+        afterInsert = usuario.docsAnyadidos.all().count()
+        doc.delete()
         if beforeInsert == afterInsert:
             return Response({'message': 'ERROR: No se ha borrado'}, status=status.HTTP_409_CONFLICT)
         else:
@@ -263,7 +282,14 @@ class DocumentoList(generics.ListAPIView):
     # filter_class = DocumentoFilter
     # pagination_class = SmallResultsSetPagination
 
-
+class DocumentoListUsuario(generics.ListAPIView):
+    # API endpoint that allows Documento to be viewed.
+    model = Documento
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+    def get_queryset(self):
+        nom = "_"+self.kwargs['nombre']
+        return Documento.objects.filter(nombre__endswith=nom)
 
 
 #Libro
@@ -328,15 +354,15 @@ class MarcaCreate(generics.CreateAPIView):
     serializer_class = MarcaSerializer
 
     def post(self, request, *args, **kwargs):
-        us = Usuario.objects.get(nomUsuario=request.GET['usuario'])
-        lib = Libro.objects.get(nombre=request.GET['libro'])
+        us = Usuario.objects.get(nomUsuario=request.data['usuario'])
+        lib = Libro.objects.get(nombre=request.data['libro'])
         esUlt = None
         if request.data['esUlt'] == 0:
             esUlt = False
         else:
             esUlt = True
 
-        Marca.objects.create(nombre=request.data['nombre'],pagina=request.data['pagina'],offset=request.data['offset'],esUltimaLeida=esUlt,usuario=us,libro=lib)
+        Marca.objects.create(nombre=request.data['nombre'],pagina=request.data['pagina'],offset=0,esUltimaLeida=esUlt,usuario=us,libro=lib)
         response = {}
         response['success'] = True
         response['message'] = "Registro guardado exitosamente"
@@ -354,22 +380,26 @@ class MarcaListUsuario(generics.ListAPIView):
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
 
-    def list(self, request, *args, **kwargs):
-        ev = Libro.objects.get(nombre=self.kwargs['nombre'])
-        us = Usuario.objects.get(nomUsuario=self.kwargs['username'])
-        queryset = self.filter_queryset((self.get_queryset()).filter(usuario=us))
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        else:
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
+    #def list(self, request, *args, **kwargs):
+        # ev = Libro.objects.get(nombre=self.kwargs['nombre'])
+        # us = Usuario.objects.get(nomUsuario=self.kwargs['username'])
+        # queryset = self.filter_queryset((self.get_queryset()).filter(usuario=us))
+        # page = self.paginate_queryset(queryset)
+        # if page is not None:
+        #     serializer = self.get_serializer(page, many=True)
+        #     return self.get_paginated_response(serializer.data)
+        # else:
+        #     serializer = self.get_serializer(queryset, many=True)
+        #     return Response(serializer.data)
+    def get_queryset(self):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        return Marca.objects.filter(usuario=us.id)
 
 class MarcaDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Marca by pk.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+    lookup_field = "nombre"
 
 class MarcaUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Marca record to be updated.
@@ -382,8 +412,14 @@ class MarcaDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Marca record to be deleted.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
-
-#
+    lookup_field = "nombre"
+    #def delete(self, request, *args, **kwargs):
+        #us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        #l = Libro.objects.get(nombre=self.kwargs['nomLibro'])
+        #m = Marca.objects.get(usuario=us.id,libro=l.id,pagina=self.kwargs['pagina'])
+        #return m.delete()
+    
+#       
 # NUEVO
 #
 class LeerLibro(generics.ListAPIView):

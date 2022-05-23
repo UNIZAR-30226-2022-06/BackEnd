@@ -1,5 +1,5 @@
 from django.urls import include, path
-from .views import BorrarLibroUsuario, LeerLibroUsuario, UsuarioCreate, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin, upload_file2
+from .views import BorrarLibroUsuario, DocumentoListUsuario, LeerLibroUsuario, UsuarioCreate, UsuarioDeleteLibro, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin, upload_file2
 from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete, MarcaListUsuario
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete, LibroListPage, ValorarLibro
 from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete, LeerLibro, upload_file, LeerLibroWeb, LeerLibroUsuarioWeb
@@ -14,10 +14,12 @@ urlpatterns = [
     path('updateUsuario/<str:nomUsuario>/', UsuarioUpdate.as_view(), name='update-usuario'),
     path('addDocsUsuario/<str:nomUsuario>/', UsuarioAddDocs.as_view(), name='addDocs-usuario'),
     path('deleteDocUsuario/<str:nomUsuario>/', UsuarioDeleteDocs.as_view(), name='delDoc-usuario'),
+    path('deleteLibroUsuario/<str:nomUsuario>/', UsuarioDeleteLibro.as_view(), name='delLibro-usuario'),
     path('deleteUsuario/<str:nomUsuario>/', UsuarioDelete.as_view(), name='delete-usuario'),
     path('createDocumento/', DocumentoCreate.as_view(), name='create-Documento'),
     path('Documentos/', DocumentoList.as_view(), name='list-Documentos'),
     path('Documentos/<str:nombre>/', DocumentoDetail.as_view(), name='retrieve-Documento'),
+    path('DocumentosUser/<str:nombre>/', DocumentoListUsuario.as_view(), name='list-DocumentosUser'),
     path('updateDocumento/<int:pk>/', DocumentoUpdate.as_view(), name='update-Documento'),
     path('deleteDocumento/<int:pk>/', DocumentoDelete.as_view(), name='delete-Documento'),
     path('createLibro/', LibroCreate.as_view(), name='create-Libro'),
@@ -30,9 +32,10 @@ urlpatterns = [
     path('deleteLibro/<str:nombre>/', LibroDelete.as_view(), name='delete-Libro'),
     path('createMarca/', MarcaCreate.as_view(), name='create-Marca'),
     path('Marcas/', MarcaList.as_view(), name='list-Marcas'),
-    path('Marcas/<int:pk>/', MarcaDetail.as_view(), name='retrieve-Marca'),
+    path('Marcas/<str:nombre>/', MarcaDetail.as_view(), name='retrieve-Marca'),
+    path('MarcasUsuario/<str:nomUsuario>/', MarcaListUsuario.as_view(), name='retrieve-Marca'),
     path('updateMarca/<int:pk>/', MarcaUpdate.as_view(), name='update-Marca'),
-    path('deleteMarca/<int:pk>/', MarcaDelete.as_view(), name='delete-Marca'),
+    path('deleteMarca/<str:nombre/', MarcaDelete.as_view(), name='delete-Marca'),
 
     path('leerLibro/<str:nombre>/<int:pagina>', LeerLibro.as_view()),
     path('leerLibro/<str:usuario>/<str:nombre>/<int:pagina>', LeerLibroUsuario.as_view()),
