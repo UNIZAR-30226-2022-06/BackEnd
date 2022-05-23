@@ -13,8 +13,9 @@ class Documento(models.Model):
     def __str__(self):
         return self.nombre
 
-class Libro(Documento):
+class Libro(models.Model):
     linkPortada = models.CharField(max_length=32, blank=False, null=True)
+    nombre = models.CharField(max_length=100,null=True)
     autor = models.CharField(max_length=100,null=True)
     editorial = models.CharField(max_length=100,null=True,blank=True)
     coverLib = models.FileField(blank=True, null=True, upload_to='.')

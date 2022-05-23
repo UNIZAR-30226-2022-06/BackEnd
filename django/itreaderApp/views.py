@@ -329,7 +329,7 @@ class MarcaCreate(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         us = Usuario.objects.get(nomUsuario=request.GET['usuario'])
-        lib = Libro.objects.get(id=request.GET['libro'])
+        lib = Libro.objects.get(nombre=request.GET['libro'])
         esUlt = None
         if request.data['esUlt'] == 0:
             esUlt = False
@@ -344,11 +344,27 @@ class MarcaCreate(generics.CreateAPIView):
         return Response(response)
 
 
- 
 class MarcaList(generics.ListAPIView):
     # API endpoint that allows Marca to be viewed.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+
+class MarcaListUsuario(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+
+    def list(self, request, *args, **kwargs):
+        ev = Libro.objects.get(nombre=self.kwargs['nombre'])
+        us = Usuario.objects.get(nomUsuario=self.kwargs['username'])
+        queryset = self.filter_queryset((self.get_queryset()).filter(usuario=us))
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
 
 class MarcaDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Marca by pk.
@@ -444,8 +460,8 @@ class upload_file(generics.ListAPIView):
  
         usuarioObj = Usuario.objects.get(nomUsuario=usuario)
         if usuarioObj.esAdmin:
-            doc = Libro.objects.create(nombre=(split_archivo[0]+'_'+usuario), linkPortada=str(cover),
-                autor='David',editorial='Planeta', coverLib=cover, valoracion=0, numValoraciones=0,formato=split_archivo[1],linkDocumento='a', cover=cover)
+            doc = Libro.objects.create(linkPortada=str(cover), nombre=(split_archivo[0]+'_'+usuario),
+                autor='David',editorial='Planeta', coverLib=cover, valoracion=0, numValoraciones=0)
             subir_archivo(str(cover),file_id_folder,local_media)
             delete_archivo(str(cover), local_media)
             return HttpResponse({'message': 'Book created'}, status=200)
@@ -542,3 +558,4 @@ class LeerLibroUsuarioWeb(generics.ListAPIView):
                 contenido = f[0]['embedLink']
         return Response({'libro': nom, 
                         'contenido': contenido}, status=status.HTTP_200_OK)
+

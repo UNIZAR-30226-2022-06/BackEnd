@@ -9,7 +9,7 @@ directorio_credenciales = './utils/credentials_module.json'
 main_id_folder = '0AHc558HLxAXpUk9PVA'
 file_id_folder = "1FEctPuVXqzFzAnp4hV2zD0cvaw0pi-wE"
 imagen_id_folder = "1ozwxIKKXnb0TRRg2jgPm3EfAZGpmXcn_"
-# RUTAS DE LAS CARPETAS DONDE SE DESCARGAN LOS ARCHIVOS
+# RUTAS DE LAS CARPETAS DONDE SE DESCARGAN LOS ARCHIVOS ./utils/
 local_file_location = './libros_local/'
 local_imagen_location = './imagen_local/'
 local_media = './media/'
@@ -196,8 +196,9 @@ if __name__ == "__main__":
     #descargar_libro_por_nombre('1.png')
     #crear_archivo_texto('Hola_mundo', 'Holi')
     #subir_libro('prueba.pdf')
-    f = busca("title = 'prueba.pdf'")
-    print(f[1]['embedLink'])
+    traducir_archivo("libro.epub",7,local_file_location)
+    #f = busca("title = 'prueba.pdf'")
+    #print(f[1]['embedLink'])
     #ruta_archivo = '/home/falv/Escritorio/fondo.jpg'
     #id_folder = '0AI_9cD6f9EEZUk9PVA'
     #id_drive = '1LVdc-DUwr30kfrA30cVO3K92RVh56pmw'
