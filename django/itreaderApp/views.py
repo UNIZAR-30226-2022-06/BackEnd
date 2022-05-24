@@ -166,6 +166,54 @@ class EnviarCorreoView(generics.RetrieveAPIView):
 
 
 
+class CompartirLibro(generics.RetrieveAPIView):
+    # API endpoint that returns a single Usuario by pk..
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+    def get(self, request, *args, **kwargs):
+           
+        email = self.kwargs['correo']
+
+        #email = self.request.query_params.['correo']
+        print('email '+email)
+        split_libro = self.kwargs['libro'].split(".", 1)
+        html = '<h1>El usuario '+self.kwargs['usuario']+' te recomienda el libro '+split_libro[0]+', disponible en la aplicación Itreader.</h1>'
+        #text = 'niñería'
+
+        mail = MIMEMultipart('alternative')
+        mail['From'] = 'itreadersoftkare@gmail.com'
+        mail['To'] = email
+        mail['Cc'] = ''
+        mail['Subject'] = 'Recomendación Itreader'
+
+        # Record the MIME types of both parts - text/plain and text/html.
+        #part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+
+        # Attach parts into message container. According to RFC 2046, the last
+        # part of a multipart message, in this case the HTML message, is best
+        # and preferred.
+        #mail.attach(part1)
+        mail.attach(part2)
+
+        msg_full = mail.as_string().encode()
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login('itreadersoftkare@gmail.com', 'Proyecto2022')
+
+
+        
+        server.sendmail('itreadersoftkare@gmail.com', email, msg_full)
+
+
+        server.quit()
+
+        return self.retrieve(request, *args, **kwargs)
+
+
+
 class UsuarioUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
     queryset = Usuario.objects.all()
@@ -183,14 +231,16 @@ class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
     lookup_field = 'nomUsuario'
     serializer_class = UsuarioAddDocsSerializer
     def put(self, request, *args, **kwargs):
-        usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
-        libro = Libro.objects.get(nombre=request.data['nomLibro'])
-        beforeInsert = usuario.docsAnyadidos.all().count()
-        usuario.docsAnyadidos.add(libro)
-        afterInsert = usuario.docsAnyadidos.all().count()
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        lib = Libro.objects.get(nombre=request.data['nomLibro'])
+        beforeInsert = us.docsAnyadidos.all().count()
+        us.docsAnyadidos.add(lib)
+        afterInsert = us.docsAnyadidos.all().count()
         if (beforeInsert+1) != afterInsert:
             return Response({'message': 'ERROR: No se ha añadido'}, status=status.HTTP_409_CONFLICT)
         else:
+            nom = "Marcapaginas"+request.data['nomLibro']
+            Marca.objects.create(nombre=nom,pagina=0,offset=0,esUltimaLeida=True,usuario=us,libro=lib)
             return Response({'message': 'Se ha añadido correctamente'}, status=status.HTTP_200_OK)
 
 
@@ -201,14 +251,16 @@ class UsuarioDeleteLibro(generics.RetrieveUpdateAPIView):
     lookup_field = 'nomUsuario'
     serializer_class = UsuarioAddDocsSerializer
     def put(self, request, *args, **kwargs):      
-        libro = Libro.objects.get(nombre=request.data['nomLibro'])
-        usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
-        beforeInsert = usuario.docsAnyadidos.all().count()
-        usuario.docsAnyadidos.remove(libro)
-        afterInsert = usuario.docsAnyadidos.all().count()
+        lib = Libro.objects.get(nombre=request.data['nomLibro'])
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
+        beforeInsert = us.docsAnyadidos.all().count()
+        us.docsAnyadidos.remove(lib)
+        afterInsert = us.docsAnyadidos.all().count()
         if beforeInsert == afterInsert:
             return Response({'message': 'ERROR: No se ha borrado'}, status=status.HTTP_409_CONFLICT)
         else:
+            marca = Marca.objects.get(usuario=us,libro=lib,esUltimaLeida=True)
+            marca.delete()
             return Response({'message': 'Se ha borrado correctamente'}, status=status.HTTP_200_OK)
 
 
@@ -384,19 +436,27 @@ class MarcaCreate(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         us = Usuario.objects.get(nomUsuario=request.data['usuario'])
         lib = Libro.objects.get(nombre=request.data['libro'])
-        esUlt = None
-        if request.data['esUltimaLeida'] == 0:
-            esUlt = False
+
+        marcas = Marca.objects.filter(usuario=us.id,libro=lib.id).count()
+
+        if marcas < 10:
+            esUlt = None
+            if request.data['esUlt'] == 0:
+                esUlt = False
+            else:
+                esUlt = True
+            Marca.objects.create(nombre=request.data['nombre'],pagina=request.data['pagina'],offset=0,esUltimaLeida=esUlt,usuario=us,libro=lib)
+            response = {}
+            response['success'] = True
+            response['message'] = "Marca creada exitosamente"
+            response['status'] = status.HTTP_201_CREATED
+            return Response(response)
         else:
-            esUlt = True
-
-        Marca.objects.create(nombre=request.data['nombre'],pagina=request.data['pagina'],offset=0,esUltimaLeida=esUlt,usuario=us,libro=lib)
-        response = {}
-        response['success'] = True
-        response['message'] = "Registro guardado exitosamente"
-        response['status'] = status.HTTP_201_CREATED
-        return Response(response)
-
+            response = {}
+            response['success'] = False
+            response['message'] = "Marca no creada"
+            response['status'] = status.HTTP_400_BAD_REQUEST
+            return Response(response)
 
 class MarcaList(generics.ListAPIView):
     # API endpoint that allows Marca to be viewed.
@@ -423,11 +483,43 @@ class MarcaListUsuario(generics.ListAPIView):
         us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
         return Marca.objects.filter(usuario=us.id)
 
+class MarcaListUsuarioLibro(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be updated.
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+
+    #def list(self, request, *args, **kwargs):
+        # ev = Libro.objects.get(nombre=self.kwargs['nombre'])
+        # us = Usuario.objects.get(nomUsuario=self.kwargs['username'])
+        # queryset = self.filter_queryset((self.get_queryset()).filter(usuario=us))
+        # page = self.paginate_queryset(queryset)
+        # if page is not None:
+        #     serializer = self.get_serializer(page, many=True)
+        #     return self.get_paginated_response(serializer.data)
+        # else:
+        #     serializer = self.get_serializer(queryset, many=True)
+        #     return Response(serializer.data)
+    def get_queryset(self):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        lib = Libro.objects.get(nombre=self.kwargs['nomLibro'])
+        return Marca.objects.filter(usuario=us.id,libro=lib.id,esUltimaLeida=False)
+
+    
+
 class MarcaDetail(generics.RetrieveAPIView):
     # API endpoint that returns a single Marca by pk.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
     lookup_field = "nombre"
+
+class Marcapaginas(generics.ListAPIView):
+    # API endpoint that returns a single Marca by pk.
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+    def get_queryset(self):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        l = Libro.objects.get(nombre=self.kwargs['nomLibro'])
+        return Marca.objects.filter(usuario=us,libro=l,esUltimaLeida=True)
 
 class MarcaUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Marca record to be updated.
@@ -446,16 +538,48 @@ class MarcaUpdate(generics.RetrieveUpdateAPIView):
         # request.data['libro'] = lib.id
         return self.partial_update(request, *args, **kwargs)
 
+    
+class MarcaUpdateAndroid(generics.RetrieveUpdateAPIView):
+    # API endpoint that allows a Marca record to be updated.
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+    lookup_field = "nombre"
+    def put(self, request, *args, **kwargs):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        l = Libro.objects.get(nombre=self.kwargs['nomLibro'])
+        m = Marca.objects.get(usuario=us.id,libro=l.id,esUltimaLeida=True)
+        m.pagina = request.data['pagina']
+        m.save()
+        response = {}
+        response['success'] = True
+        response['message'] = "Marca actualizada exitosamente"
+        response['status'] = status.HTTP_201_CREATED
+        return Response(response)
+
+
 class MarcaDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Marca record to be deleted.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
     lookup_field = "nombre"
-    #def delete(self, request, *args, **kwargs):
-        #us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
-        #l = Libro.objects.get(nombre=self.kwargs['nomLibro'])
-        #m = Marca.objects.get(usuario=us.id,libro=l.id,pagina=self.kwargs['pagina'])
-        #return m.delete()
+    def delete(self, request, *args, **kwargs):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario'])
+        l = Libro.objects.get(id=self.kwargs['idLibro'])
+        m = Marca.objects.get(usuario=us,libro=l,nombre=self.kwargs['nomMarca'])
+        m.delete()
+        response = {}
+        response['success'] = True
+        response['message'] = "Marca borrada exitosamente"
+        response['status'] = status.HTTP_201_CREATED
+        return Response(response)
+
+class MarcaDeleteAll(generics.RetrieveDestroyAPIView):
+    # API endpoint that allows a Marca record to be deleted.
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+    lookup_field = "nombre"
+    def delete(self, request, *args, **kwargs):
+        return Marca.objects.all.delete()
     
 #       
 # NUEVO
@@ -489,32 +613,37 @@ class LeerLibro(generics.ListAPIView):
 class upload_file2(generics.ListAPIView):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
+    parser_classes = (FileUploadParser,)
     
-    def post(self, request, *args, **kwargs):
+    def post(self, request, filename, format=None):
+        #file_obj.name == str(cover)
+        #file_obj == cover
+
+        file_obj = request.data['file']
+        #file_name = request.GET['filename']
         
-        usuario = request.data['usuario']
-        cover = request.POST.get['cover']
-        split_archivo = str(cover).split(".", 1)
- 
+        usuario = request.GET['usuario']
+        #cover = request.data['cover']
+        split_archivo = file_obj.name.split(".", 1)
+        #split_archivo = str(cover).split(".", 1)
+
         usuarioObj = Usuario.objects.get(nomUsuario=usuario)
         if usuarioObj.esAdmin:
-            doc = Libro.objects.create(linkPortada=str(cover), nombre=(split_archivo[0]+'_'+usuario),
-                autor='David',editorial='Planeta', coverLib=cover, valoracion=0, numValoraciones=0)
-            subir_archivo(str(cover),file_id_folder,local_media)
-            delete_archivo(str(cover), local_media)
+            doc = Libro.objects.create(linkPortada=str(file_obj),
+                autor='David',editorial='Planeta', coverLib=file_obj, valoracion=0, numValoraciones=0,nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=file_obj)
+            subir_archivo(file_obj.name,file_id_folder,local_media)
+            delete_archivo(file_obj.name, local_media)
             return HttpResponse({'message': 'Book created'}, status=200)
         else:
-            docs = Documento.objects.filter(nombre=(split_archivo[0]+'_'+usuario))
-            if docs:
-                return HttpResponse({'message': 'Book not created'}, status=409)
-            else: 
-                doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='Documento PDF', cover=cover)
-                usuarioObj.docsSubidos.add(doc)
-                new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
-                os.rename(local_media+str(cover), local_media+new_name)
-                subir_archivo(new_name,file_id_folder,local_media)
-                delete_archivo(new_name, local_media)
-                return HttpResponse({'message': 'Book created'}, status=200)
+            doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=file_obj)
+            # doc.cover.name = file_name
+            # doc.save()
+            usuarioObj.docsSubidos.add(doc)
+            new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+            os.rename(local_media+file_obj.name, local_media+new_name)
+            subir_archivo(new_name,file_id_folder,local_media)
+            delete_archivo(new_name, local_media)
+            return HttpResponse({'message': 'Book created'}, status=200)
 
 
 class upload_file(generics.ListAPIView):
