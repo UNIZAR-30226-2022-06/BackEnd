@@ -201,7 +201,7 @@ class UsuarioDeleteLibro(generics.RetrieveUpdateAPIView):
     lookup_field = 'nomUsuario'
     serializer_class = UsuarioAddDocsSerializer
     def put(self, request, *args, **kwargs):      
-        libro = Libro.objects.get(nombre=request.GET['nomLibro'])
+        libro = Libro.objects.get(nombre=request.data['nomLibro'])
         usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
         beforeInsert = usuario.docsAnyadidos.all().count()
         usuario.docsAnyadidos.remove(libro)
@@ -218,7 +218,7 @@ class UsuarioDeleteDocs(generics.RetrieveUpdateAPIView):
     lookup_field = 'nomUsuario'
     serializer_class = UsuarioAddDocsSerializer
     def put(self, request, *args, **kwargs):      
-        doc = Documento.objects.get(nombre=request.GET['nomLibro'])
+        doc = Documento.objects.get(nombre=request.data['nomLibro'])
         usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
         beforeInsert = usuario.docsAnyadidos.all().count()
         usuario.docsSubidos.remove(doc)
@@ -230,6 +230,25 @@ class UsuarioDeleteDocs(generics.RetrieveUpdateAPIView):
             return Response({'message': 'Se ha borrado correctamente'}, status=status.HTTP_200_OK)
 
        
+class UsuarioDeleteDocsId(generics.RetrieveUpdateAPIView):
+    # API endpoint that allows a Usuario record to be updated.
+    queryset = Usuario.objects.all()
+    lookup_field = 'nomUsuario'
+    serializer_class = UsuarioAddDocsSerializer
+    def put(self, request, *args, **kwargs):      
+        doc = Documento.objects.get(id=request.data['id'])
+        usuario = Usuario.objects.get(nomUsuario=self.kwargs['nomUsuario']) 
+        beforeInsert = usuario.docsAnyadidos.all().count()
+        usuario.docsSubidos.remove(doc)
+        afterInsert = usuario.docsAnyadidos.all().count()
+        doc.delete()
+        if beforeInsert == afterInsert:
+            return Response({'message': 'ERROR: No se ha borrado'}, status=status.HTTP_409_CONFLICT)
+        else:
+            return Response({'message': 'Se ha borrado correctamente'}, status=status.HTTP_200_OK)
+
+
+
 class UsuarioDelete(generics.RetrieveDestroyAPIView):
     # API endpoint that allows a Usuario record to be deleted.
     queryset = Usuario.objects.all()
@@ -305,7 +324,7 @@ class LibroList(generics.ListAPIView):
     serializer_class = LibroSerializer
 
 class SmallResultsSetPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 20
     page_query_param = 'page'
 
 class LibroListPage(generics.ListAPIView):
@@ -334,6 +353,15 @@ class LibroDelete(generics.RetrieveDestroyAPIView):
     lookup_field = 'nombre'
     serializer_class = LibroSerializer
 
+class LibrosUser(generics.ListAPIView):
+    # API endpoint that allows a Libro record to be deleted.
+    queryset = Libro.objects.all()
+    serializer_class = LibroSerializer
+    def get_queryset(self):
+        us = Usuario.objects.get(nomUsuario=self.kwargs['usuario'])
+        return us.docsAnyadidos.all()
+
+
 class ValorarLibro(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
     queryset = Libro.objects.all()
@@ -357,7 +385,7 @@ class MarcaCreate(generics.CreateAPIView):
         us = Usuario.objects.get(nomUsuario=request.data['usuario'])
         lib = Libro.objects.get(nombre=request.data['libro'])
         esUlt = None
-        if request.data['esUlt'] == 0:
+        if request.data['esUltimaLeida'] == 0:
             esUlt = False
         else:
             esUlt = True
@@ -377,8 +405,8 @@ class MarcaList(generics.ListAPIView):
 
 class MarcaListUsuario(generics.ListAPIView):
     # API endpoint that allows a Libro record to be updated.
-    queryset = Libro.objects.all()
-    serializer_class = LibroSerializer
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
 
     #def list(self, request, *args, **kwargs):
         # ev = Libro.objects.get(nombre=self.kwargs['nombre'])
@@ -405,7 +433,17 @@ class MarcaUpdate(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Marca record to be updated.
     queryset = Marca.objects.all()
     serializer_class = MarcaSerializer
+    lookup_field = "nombre"
     def put(self, request, *args, **kwargs):
+        # us = Usuario.objects.get(nomUsuario=request.data['usuario'])
+        # lib = Libro.objects.get(nombre=request.data['libro'])
+        # esUlt = None
+        # if request.data['esUltimaLeida'] == 0:
+        #     request.data['esUltimaLeida'] = False
+        # else:
+        #     request.data['esUltimaLeida'] = True
+        # request.data['usuario'] = us.id
+        # request.data['libro'] = lib.id
         return self.partial_update(request, *args, **kwargs)
 
 class MarcaDelete(generics.RetrieveDestroyAPIView):
@@ -502,13 +540,17 @@ class upload_file(generics.ListAPIView):
             delete_archivo(str(cover), local_media)
             return HttpResponse({'message': 'Book created'}, status=200)
         else:
-            doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=cover)
-            usuarioObj.docsSubidos.add(doc)
-            new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
-            os.rename(local_media+str(cover), local_media+new_name)
-            subir_archivo(new_name,file_id_folder,local_media)
-            delete_archivo(new_name, local_media)
-            return HttpResponse({'message': 'Book created'}, status=200)
+            docs = Documento.objects.filter(nombre=(split_archivo[0]+'_'+usuario))
+            if docs:
+                return HttpResponse({'message': 'Book not created'}, status=409)
+            else: 
+                doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='Documento PDF', cover=cover)
+                usuarioObj.docsSubidos.add(doc)
+                new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+                os.rename(local_media+str(cover), local_media+new_name)
+                subir_archivo(new_name,file_id_folder,local_media)
+                delete_archivo(new_name, local_media)
+                return HttpResponse({'message': 'Book created'}, status=200)
 
 
 class LeerLibroUsuario(generics.ListAPIView):
