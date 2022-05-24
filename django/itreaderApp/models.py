@@ -21,6 +21,8 @@ class Libro(models.Model):
     coverLib = models.FileField(blank=True, null=True, upload_to='.')
     valoracion = models.FloatField(default=0.0)
     numValoraciones = models.PositiveIntegerField(default=0)
+    def __str__(self):
+        return self.nombre
 
 class Usuario(models.Model):
     nombre = models.CharField(max_length=50)

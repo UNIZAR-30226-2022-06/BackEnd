@@ -489,37 +489,32 @@ class LeerLibro(generics.ListAPIView):
 class upload_file2(generics.ListAPIView):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
-    parser_classes = (FileUploadParser,)
     
-    def post(self, request, filename, format=None):
-        #file_obj.name == str(cover)
-        #file_obj == cover
-
-        file_obj = request.data['file']
-        #file_name = request.GET['filename']
+    def post(self, request, *args, **kwargs):
         
-        usuario = request.GET['usuario']
-        #cover = request.data['cover']
-        split_archivo = file_obj.name.split(".", 1)
-        #split_archivo = str(cover).split(".", 1)
-
+        usuario = request.data['usuario']
+        cover = request.POST.get['cover']
+        split_archivo = str(cover).split(".", 1)
+ 
         usuarioObj = Usuario.objects.get(nomUsuario=usuario)
         if usuarioObj.esAdmin:
-            doc = Libro.objects.create(linkPortada=str(file_obj),
-                autor='David',editorial='Planeta', coverLib=file_obj, valoracion=0, numValoraciones=0,nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=file_obj)
-            subir_archivo(file_obj.name,file_id_folder,local_media)
-            delete_archivo(file_obj.name, local_media)
+            doc = Libro.objects.create(linkPortada=str(cover), nombre=(split_archivo[0]+'_'+usuario),
+                autor='David',editorial='Planeta', coverLib=cover, valoracion=0, numValoraciones=0)
+            subir_archivo(str(cover),file_id_folder,local_media)
+            delete_archivo(str(cover), local_media)
             return HttpResponse({'message': 'Book created'}, status=200)
         else:
-            doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='a', cover=file_obj)
-            # doc.cover.name = file_name
-            # doc.save()
-            usuarioObj.docsSubidos.add(doc)
-            new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
-            os.rename(local_media+file_obj.name, local_media+new_name)
-            subir_archivo(new_name,file_id_folder,local_media)
-            delete_archivo(new_name, local_media)
-            return HttpResponse({'message': 'Book created'}, status=200)
+            docs = Documento.objects.filter(nombre=(split_archivo[0]+'_'+usuario))
+            if docs:
+                return HttpResponse({'message': 'Book not created'}, status=409)
+            else: 
+                doc = Documento.objects.create(nombre=(split_archivo[0]+'_'+usuario),formato=split_archivo[1],linkDocumento='Documento PDF', cover=cover)
+                usuarioObj.docsSubidos.add(doc)
+                new_name = split_archivo[0]+'_'+usuario+'.'+split_archivo[1]
+                os.rename(local_media+str(cover), local_media+new_name)
+                subir_archivo(new_name,file_id_folder,local_media)
+                delete_archivo(new_name, local_media)
+                return HttpResponse({'message': 'Book created'}, status=200)
 
 
 class upload_file(generics.ListAPIView):
