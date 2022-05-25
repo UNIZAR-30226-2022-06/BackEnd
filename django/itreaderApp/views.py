@@ -224,7 +224,6 @@ class UsuarioUpdate(generics.RetrieveUpdateAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
-
 class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
     # API endpoint that allows a Usuario record to be updated.
     queryset = Usuario.objects.all()
@@ -240,7 +239,7 @@ class UsuarioAddDocs(generics.RetrieveUpdateAPIView):
             return Response({'message': 'ERROR: No se ha añadido'}, status=status.HTTP_409_CONFLICT)
         else:
             nom = "Marcapaginas"+request.data['nomLibro']
-            Marca.objects.create(nombre=nom,pagina=0,offset=0,esUltimaLeida=True,usuario=us,libro=lib)
+            Marca.objects.create(nombre=nom,pagina=1,offset=0,esUltimaLeida=True,usuario=us,libro=lib)
             return Response({'message': 'Se ha añadido correctamente'}, status=status.HTTP_200_OK)
 
 
@@ -374,6 +373,9 @@ class LibroList(generics.ListAPIView):
     # API endpoint that allows Libro to be viewed.
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
+    # def get_queryset(self):
+    #     return Libro.objects.all().order_by('nombre')
+
 
 class SmallResultsSetPagination(PageNumberPagination):
     page_size = 20
@@ -437,9 +439,9 @@ class MarcaCreate(generics.CreateAPIView):
         us = Usuario.objects.get(nomUsuario=request.data['usuario'])
         lib = Libro.objects.get(nombre=request.data['libro'])
 
-        marcas = Marca.objects.filter(usuario=us.id,libro=lib.id).count()
+        marcas = Marca.objects.filter(usuario=us.id,libro=lib.id,esUltimaLeida=False).count()
 
-        if marcas < 10:
+        if marcas < 15:
             esUlt = None
             if request.data['esUlt'] == 0:
                 esUlt = False
@@ -580,6 +582,12 @@ class MarcaDeleteAll(generics.RetrieveDestroyAPIView):
     lookup_field = "nombre"
     def delete(self, request, *args, **kwargs):
         return Marca.objects.all.delete()
+
+class MarcaDeleteId(generics.RetrieveDestroyAPIView):
+    # API endpoint that allows a Marca record to be deleted.
+    queryset = Marca.objects.all()
+    serializer_class = MarcaSerializer
+    lookup_field = "id"
     
 #       
 # NUEVO
@@ -658,7 +666,7 @@ class upload_file(generics.ListAPIView):
  
         usuarioObj = Usuario.objects.get(nomUsuario=usuario)
         if usuarioObj.esAdmin:
-            doc = Libro.objects.create(linkPortada=str(cover), nombre=(split_archivo[0]+'_'+usuario),
+            doc = Libro.objects.create(linkPortada='https://db-itreader-unizar.herokuapp.com/media/portada.jpg', nombre=str(cover),
                 autor='David',editorial='Planeta', coverLib=cover, valoracion=0, numValoraciones=0)
             subir_archivo(str(cover),file_id_folder,local_media)
             delete_archivo(str(cover), local_media)

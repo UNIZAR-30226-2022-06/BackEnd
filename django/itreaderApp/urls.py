@@ -1,5 +1,5 @@
 from django.urls import include, path
-from .views import BorrarLibroUsuario, CompartirLibro, DocumentoListUsuario, LeerLibroUsuario, LibrosUser, MarcaDeleteAll, MarcaListUsuarioLibro, MarcaUpdateAndroid, Marcapaginas, UsuarioCreate, UsuarioDeleteDocsId, UsuarioDeleteLibro, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin, upload_file2
+from .views import BorrarLibroUsuario, CompartirLibro, DocumentoListUsuario, LeerLibroUsuario, LibrosUser, MarcaDeleteAll, MarcaDeleteId, MarcaListUsuarioLibro, MarcaUpdateAndroid, Marcapaginas, UsuarioCreate, UsuarioDeleteDocsId, UsuarioDeleteLibro, UsuarioList, UsuarioDetail, UsuarioDetailCorreo, UsuarioUpdate, UsuarioAddDocs, UsuarioDeleteDocs, UsuarioDelete, UsuarioDetailCorreo, EnviarCorreoView, UsuarioLogin, upload_file2
 from .views import DocumentoCreate, DocumentoList, DocumentoDetail, DocumentoUpdate, DocumentoDelete, MarcaListUsuario
 from .views import LibroCreate, LibroList, LibroDetail, LibroUpdate, LibroDelete, LibroListPage, ValorarLibro
 from .views import MarcaCreate, MarcaList, MarcaDetail, MarcaUpdate, MarcaDelete, LeerLibro, upload_file, LeerLibroWeb, LeerLibroUsuarioWeb
@@ -43,6 +43,7 @@ urlpatterns = [
     path('updateMarcaAndroid/<str:nomUsuario>/<str:nomLibro>/', MarcaUpdateAndroid.as_view(), name='update-Marca-android'),
     path('deleteMarca/<str:nomUsuario>/<int:idLibro>/<str:nomMarca>/', MarcaDelete.as_view(), name='delete-Marca'),
     path('deleteMarcas/<str:nombre>/', MarcaDeleteAll.as_view(), name='delete-Marca'),
+    path('deleteMarcas/<int:id>/', MarcaDeleteId.as_view(), name='delete-Marca-id'),
 
     path('leerLibro/<str:nombre>/<int:pagina>', LeerLibro.as_view()),
     path('leerLibro/<str:usuario>/<str:nombre>/<int:pagina>', LeerLibroUsuario.as_view()),
